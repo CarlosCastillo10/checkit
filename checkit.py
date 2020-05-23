@@ -61,7 +61,7 @@ class Doc:
             video_title ='video no disponible'
         return video_title
 
-    # Obtener menu principal
+    # Obtener estructura del curso
     def __makeDraftStruct(self):
         for v in self.draft_vert_path.iterdir():
             if v.suffix != '.xml':
@@ -145,16 +145,30 @@ class Doc:
             
     def describeCourse(self):
         
+        # Validar si el directorio 'course-report' existe
         if os.path.isdir('%s/course-report'%self.path):
-            rmtree('%s/course-report'%self.path) 
+            rmtree('%s/course-report'%self.path) # Eliminar directorio 'course-report'
         
+        os.mkdir('%s/course-report'%self.path) # Crear directorio 'course-report'
+        
+        file_index = open(str(self.path)+'/course-report/index.html','w') # Crear archivo 'index.html'
+        file_index.write('<html>\n<head>\n<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>\n</head>\n'
+            '<style>\nimg{\ndisplay:inline-block;\nwidth: %s\n}\n'
+            'body{\nborder-bottom: 3px solid #CE7D35;\n}\n'
+            'h1{\nvertical-align:top;\ndisplay:inline-block;\ntext-align: center;\npadding-top: 20px;\nwidth: %s\n}\n</style>\n'
+            '<title>REPORTE %s</title>\n</head>\n<body>\n<div>\n'
+            '<img src="http://opencampus.utpl.edu.ec/static/themes/utpl_final/images/openCampus_logo.3c9532a0c56d.png">\n'
+            '<h1>%s\n</h1>\n</div>\n<ul>\n'%('15%;','70%;',self.course_title, self.course_title))
+
         readme = open(str(self.path)+'/README.md', 'w')
         readme.write("###Course structure - [course/{0}](course/{0})\n".format(self.course_file.name))     
-        self.describeChapter(readme)
+        self.describeChapter(readme, file_index)
         readme.close()
+        file_index.write('</ul>\n</body>\n</html>')
+        file_index.close()
 
-    # Obtener submenu
-    def describeChapter(self, readme):
+    # Obtener menu principal
+    def describeChapter(self, readme, file_index):
    
         num_id = 0
         # print(self.chapter_list)
@@ -175,6 +189,7 @@ class Doc:
 
                 # Formar menu principal
                 num_id+=1
+                file_index.write('<li>%s'%chap_name)
                 '''
                 frame_izquierdo.write('<div class="row">\n<li class="col-11 nav-item" id="principal"><a class="nav-link" '
                     'href="#" role="button" data-toggle="collapse" data-target="#submenu%d" aria-haspopup="true" '
@@ -199,7 +214,8 @@ class Doc:
                 seq_list = [l.split('"')[1] for l in chap_txt if "sequential" in l]
 
 
-                pub_seq_struct, all_seq_struct = self.describeSequen(seq_list, readme, num_id)
+                pub_seq_struct, all_seq_struct = self.describeSequen(seq_list, readme, file_index, num_id)
+                file_index.write('</li>\n')
                 # frame_izquierdo.write('</li>\n<span class="pt-3 col-1 dropdown-toggle"></span>\n</div>\n')
 
                 ### estructura publica
@@ -211,10 +227,11 @@ class Doc:
         self.public_problems_struct = dict((k, v) for k, v in self.public_problems_struct.items() if v)
 
 
-    def describeSequen(self, seq, readme, num_id):
+    def describeSequen(self, seq, readme, file_index, num_id):
 
         pub_seq = OrderedDict()
         all_seq = OrderedDict()
+        file_index.write('\n<ul>\n')
         # frame_izquierdo.write('\n<ul class="collapse navbar-nav flex-column" id="submenu%d">\n'%num_id) 
         for s in seq:
             self.num_units = 0;
@@ -240,20 +257,21 @@ class Doc:
                 
                 if (len(unit_list) > 1):
                     self.num_id_seq +=1
+                    file_index.write('<li>%s'%self.tmp_name_equal)
                     '''
                     frame_izquierdo.write('<div class="row">\n<li class="col-11 nav-item" id="principal2"><a class="nav-link" '
                         'href="#" role="button" data-toggle="collapse" data-target="#menu-submenu%d" aria-haspopup="true" '
                         'aria-expanded="false">%s</a></li>\n'
                         '<span class="pt-3 col-1 dropdown-toggle"></span>\n</div>\n'%(self.num_id_seq, self.tmp_name_equal))
                     
-                    
-                    #frame_izquierdo.write('<ul class="menu-submenu">\n') 
                     frame_izquierdo.write('\n<ul class="collapse navbar-nav flex-column" id="menu-submenu%d">\n'%self.num_id_seq) 
                     '''
-                    pub_dict, all_dict = self.describeUnit(unit_list, readme, sequ_name)
+                    file_index.write('\n<ul>\n')
+                    pub_dict, all_dict = self.describeUnit(unit_list, readme, file_index, sequ_name)
                     # frame_izquierdo.write('</ul>\n')
+                    file_index.write('</ul>\n')
                 else:
-                    pub_dict, all_dict = self.describeUnit(unit_list, readme, sequ_name)
+                    pub_dict, all_dict = self.describeUnit(unit_list, readme, file_index, sequ_name)
                 pub_seq[sequ_name] = pub_dict
 
                 if s in self.draft_problems_struct.keys():
@@ -265,7 +283,7 @@ class Doc:
                             unpublished = True
                             self.draft_problems_struct[s].remove(u)
                     if self.draft_problems_struct[s]:
-                        all_dict2 = self.describeDraftUnit(self.draft_problems_struct[s], readme,sequ_name)
+                        all_dict2 = self.describeDraftUnit(self.draft_problems_struct[s], readme, file_index, sequ_name)
                         for d in all_dict2:
                             all_dict[d] = all_dict2[d]
 
@@ -278,20 +296,21 @@ class Doc:
                 if s not in self.draft_problems_struct.keys():
                     all_dict = OrderedDict()
                 else:
-                    all_dict = self.describeDraftUnit(self.draft_problems_struct[s], readme, sequ_name)
+                    all_dict = self.describeDraftUnit(self.draft_problems_struct[s], readme, file_index, sequ_name)
                 all_seq['('+s_name[-9:-4]+')'+sequ_name] = (str(sFile), all_dict)
 
         # frame_izquierdo.write('</ul>\n')
+        file_index.write('</ul>\n')
         pub_seq = dict((k, v) for k, v in pub_seq.items() if v)
         return pub_seq, all_seq
 
-    def describeUnit(self, uni, readme ,sequ_name):
+    def describeUnit(self, uni, readme, file_index, sequ_name):
         # aux_sequ_name = self.eliminar_carateres_especiales(sequ_name).replace(' ','-')
         #print(uni)
         #print('\n\n')
         pub_uni = OrderedDict()
         all_uni = OrderedDict()
-        direccion = ''
+        # direccion = ''
             
         for u in uni:
             u += '.xml'
@@ -305,6 +324,10 @@ class Doc:
             aux_u_name = u_name
             # aux_u_name = self.eliminar_carateres_especiales(u_name.replace(' ','-'))
             #print(uni_txt[0])
+            if (len(uni) > 1):
+                file_index.write('<li>%s</li>\n'%u_name)
+            else:
+                file_index.write('<li>%s</li>\n'%sequ_name)
             ''''
             # Formar el submenu
             if (len(uni) > 1):
@@ -350,13 +373,13 @@ class Doc:
 
             #print(prob_list)
 
-            pub_dict, all_dict = self.describeProb(prob_list, readme, aux_u_name.lower())
+            pub_dict, all_dict = self.describeProb(prob_list, readme, file_index, aux_u_name.lower())
             pub_uni[u_name] = pub_dict
             all_uni['('+u[-9:-4]+')'+u_name] = (str(uFile), all_dict)
         pub_uni = dict((k, v) for k, v in pub_uni.items() if v)
         return pub_uni, all_uni
 
-    def describeProb(self, prob_list, readme, name):
+    def describeProb(self, prob_list, readme, file_index, name):
        
         '''
         print(prob_list)
@@ -375,8 +398,8 @@ class Doc:
         pat2 = re.compile(r'(\S+)="([^"]+)"')
         num_files = 0
         aux_u_name = name
-        files_list = []
-        txt_prob = ''
+        # files_list = []
+        # txt_prob = ''
         #file_idx_prob = open('%s/idx-%s.html'%(direccion,aux_u_name),'w')
         #file_idx_prob.write('<html>\n<body>\n')
 
@@ -389,7 +412,7 @@ class Doc:
             num_files +=1
             # Pendiente agregar condicion para ver si es un video o un html.
             if pro[0] == 'html': # Condicion para ver si el archivo es un html
-                txt_prob = '%s<a class="btn btn-outline-dark border-0 col-auto" href="%s.html" data-toggle="button" aria-pressed="false" autocomplete="off">Page</a>\n'%(txt_prob, aux_u_name)
+                # txt_prob = '%s<a class="btn btn-outline-dark border-0 col-auto" href="%s.html" data-toggle="button" aria-pressed="false" autocomplete="off">Page</a>\n'%(txt_prob, aux_u_name)
                 #'<a href="#" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">Primary link</a>'
                 #'data-toggle="button" aria-pressed="false" autocomplete="off"'
                 pro_name = pro[1]+'.xml'
@@ -533,7 +556,7 @@ class Doc:
         return pub_prob, pro_list
 
     # Obtener informacion de unidades
-    def describeDraftUnit(self, unit, readme, sequ_name):
+    def describeDraftUnit(self, unit, readme, file_index, sequ_name):
         # aux_sequ_name = self.eliminar_carateres_especiales(sequ_name).replace(' ','-')
         all_uni = OrderedDict()
         # files_list = []
@@ -564,6 +587,7 @@ class Doc:
             # frame_derecho = open(str(self.path)+'/course-html/content/%s/%s/%s/%s.html'%(path,aux_sequ_name.lower(),aux_u_name.lower(),aux_u_name.lower()), 'w')
             # files_list.append(str(self.path)+'/course-html/content/%s/%s/%s/%s.html'%(path,aux_sequ_name.lower(),aux_u_name.lower(),aux_u_name.lower()))
             # files_list.append(str(self.path)+'/course-html/content/%s/%s/%s/%s.html'%(path,aux_sequ_name.lower(),aux_u_name.lower(),aux_u_name.lower()))
+            file_index.write('<li>%s</li>\n'%u_name)
             readme.write('\t\t* [Unit]\(Draft\) {0} - [{1}]({1})\n'.format(u_name, aux_uFile))
             prob_list = self.describeDraftProb(u[1:], readme, aux_u_name.lower())
             # frame_derecho.close()
