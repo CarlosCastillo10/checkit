@@ -13,6 +13,7 @@ from shutil import rmtree
 import os, fnmatch
 import pafy
 import shutil
+import httplib2 # Nueva
 
 
 class Doc:
@@ -32,8 +33,56 @@ class Doc:
             if 'chapter' in cline:
                 chap_name = cline.split('"')[1]
                 self.chapter_list.append(chap_name)
-    
-    
+    def checkUrls(self, file_adress):
+        dict_reportUrl = {'file': '','urls':self.getUrls(file_adress)}
+        print(dict_reportUrl)
+        print('\n')
+
+            
+    def getUrls(self, file_adress):
+        '''
+        file = open(file_adress, 'r') # Abrir archivo
+        file_content = archivo.readlines() # Leer el contenido del archivo
+        '''
+        list_stateUrls = []
+        file_content = file_adress.open().readlines()
+
+        # Expresión regular que obtiene solo las urls
+        pattern = re.compile(r'http(s)?:\/\/?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)(\?)?\w(=)?\w*')
+
+        list_url = [] # Lista que almacenara las url
+
+        # Analisis de cada linea del html
+        for line in file_content:
+            match = pattern.search(line)
+            # Si encuentra alguna linea que cumpla la expresión regular definida
+            if match:
+                list_url.append(match.group())
+        if list_url:
+            list_stateUrls = self.validateUrlStatus(list_url)
+        
+        return list_stateUrls
+
+    def validateUrlStatus(self, list_url):
+        list_states = []
+        # Recorrer la lista de urls
+        for url in list_url:
+            try:
+                # Se declara un diccionario estado para registrar la validez de cada url
+                dict_urlState = {'url' : url, 'estado' : ''}
+
+                response, content = httplib2.Http().request(url)
+                if response.status == 200:
+                    dict_urlState['estado'] = 'correcto'
+                else:
+                    dict_urlState['estado'] = 'incorrecto'
+                    # sys.exit (-1)
+                list_states.append(dict_urlState)
+            except httplib2.HttpLib2Error as err:
+                print('No es posible acceder a la url:  %s. Error : %s' % (url, err))
+            
+        return list_states
+
     def obtener_video(self, archivo):
         tree = ET.parse(str(archivo))
         root = tree.getroot()
@@ -372,7 +421,7 @@ class Doc:
                 #    comp_list.append(['discussion', prob])
 
             #print(prob_list)
-
+            print(u_name)
             pub_dict, all_dict = self.describeProb(prob_list, readme, file_index, aux_u_name.lower())
             pub_uni[u_name] = pub_dict
             all_uni['('+u[-9:-4]+')'+u_name] = (str(uFile), all_dict)
@@ -420,6 +469,9 @@ class Doc:
                 
                 pFile = self.path / pro[0] / pro_name
                 pFile_html = self.path / pro[0] / pro_name_html
+
+                # Variable nueva
+                file_adress = self.path / pro[0] / pro_name_html # direccion del archivo
                 
                 aux_pFile = '%s/%s'%(pro[0], pro_name)
                 
@@ -445,6 +497,7 @@ class Doc:
                     readme.write('\t\t\t* [{0}] {1} - [{2}]({2})\n'.format(pro[0], p_name, aux_pFile))
                     #readme.write('\t\t\t\t Weight: {0}, Max Attempts: {1}\n'.format(weight, max_att))
                 else:
+                    self.checkUrls(file_adress)
                     readme.write('\t\t\t* [{0}] - [{1}]({1})\n'.format(pro[0], aux_pFile))
                     #print(str(p_txt_html))
                     '''
