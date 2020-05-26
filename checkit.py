@@ -48,6 +48,7 @@ class Doc:
             '<div class="container pt-4">\n<div class="card text-white bg-info mb-5 mt-5">\n<H5 class="card-header text-center">REPORTE - %s</H5>\n</div>\n'
             %(self.course_title, self.course_title.upper()))
         self.formResumeCard(file_index)
+        self.formDetailsCard(file_index)
         file_index.write('</div>\n'
             '<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>\n'
             '<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>\n'
@@ -56,7 +57,7 @@ class Doc:
  
     # Metodo para formar el card de Resumen
     def formResumeCard(self, file_index):
-        file_index.write('<div class="card bg-transparent border-success mb-3">\n<div class="card-header text-center bg-success border-success text-white">RESUMEN</div>\n'
+        file_index.write('<div class="card bg-transparent border-success mb-5">\n<div class="card-header text-center bg-success border-success text-white">RESUMEN</div>\n'
             '<div class="card-body">\n<div class="table-responsive-sm">\n<table class="table table-sm table-hover">\n'
             '<p class="card-text text-dark">Aqui escribir algo</p>'
             '<thead class="table-success">\n<tr>\n<th scope="col"># Errores</th>\n<th scope="col">Criterio</th>\n<th scope="col">Estado</th>\n</tr>\n</thead>\n<tbody>\n')
@@ -80,6 +81,27 @@ class Doc:
             file_index.write('</td>\n</tr>\n')
         return total_errors
 
+    def formDetailsCard(self,file_index):
+        file_index.write('<div class="card bg-light border-secondary mb-3">\n'
+            '<div class="card-header text-center bg-secondary border-success text-white">DETALLE</div>\n'
+            '<div class="card-body">\n<div id="accordion">\n')
+        num_heading = 0
+        for chap_detail in self.chapterDetails:
+            num_heading += 1
+            file_index.write('<div class="card border-info mb-3">\n'
+                '<div class="card-header" id="heading%d">\n'
+                '<button class="btn btn-outline-light" data-toggle="collapse" data-target="#collapse%d" aria-expanded="true" aria-controls="collapseOne">\n'
+                '<svg class="bi bi-plus-square-fill text-dark" width="2em" height="2em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">\n'
+                '<path fill-rule="evenodd" d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm6.5 4a.5.5 0 0 0-1 0v3.5H4a.5.5 0 0 0 0 1h3.5V12a.5.5 0 0 0 1 0V8.5H12a.5.5 0 0 0 0-1H8.5V4z"/>\n'
+                '</svg>\n</button>\n%s       '%(num_heading, num_heading, chap_detail['chapter_name']))
+            if chap_detail['total_errors'] > 0:
+                file_index.write('<span class="badge badge-pill badge-danger">')
+            else:
+                file_index.write('<span class="badge badge-pill badge-success">')
+            file_index.write('%d</span>\n</div>\n'
+                '<div id="collapse%d" class="collapse hide" aria-labelledby="headingOne" data-parent="#accordion">\n'
+                '<div class="card-body">Aqui van las unidades de esta secction\n</div>\n</div>\n</div>\n'%(chap_detail['total_errors'],num_heading))
+        file_index.write('</div>\n</div>\n</div>\n')
     # Metodo para validar cada url de cada archivo
     def checkUrls(self, file_adress):
         dict_reportUrl = {'file': '','urls':self.getUrls(file_adress)}
@@ -218,6 +240,7 @@ class Doc:
         self.number_sectionErrors = 1
         self.number_videoErrors = 0
         self.number_emptyContent = 0
+        self.chapter_name = ''
 
         # Variables de Path
         self.path = Path(start_path)
@@ -244,11 +267,12 @@ class Doc:
         self.pathsHtml = []
         self.criteria_list = [{'criterio':'seccion espacio colaborativo', 'errores': 0}, {'criterio': 'url con error', 'errores': 0},
             {'criterio':'videos con error','errores':0}, {'criterio': 'contenido vacio','errores': 0},{'criterio':'pdf con error', 'errores': 0}]
-
         ## Estructura de secciones y unidades
         self.draft_problems_struct = OrderedDict()
         self.public_problems_struct = OrderedDict()
         self.all_problems_struct = OrderedDict()
+        self.chapterDetails = []
+        self.tmp_dictionary = {}
 
         ## obtener estructura del curso
         self.__makeCourse()
@@ -282,6 +306,7 @@ class Doc:
         self.criteria_list[1]['errores'] = self.number_urlErrors
         self.criteria_list[2]['errores'] = self.number_videoErrors
         self.criteria_list[3]['errores'] = self.number_emptyContent
+        
         self.formMainCard(file_index)
         file_index.close()
         readme.close()
@@ -294,6 +319,7 @@ class Doc:
         num_id = 0
         # print(self.chapter_list)
         for c in self.chapter_list:
+            self.tmp_dictionary = {}
             # build path
             c += '.xml'
             cFile = self.chapter_path / c
@@ -305,6 +331,7 @@ class Doc:
 
                 first_line = chap_txt[0]
                 chap_name = first_line.split('"')[1]
+                self.tmp_dictionary = {'chapter_name': chap_name,'total_errors': 0}
                 if chap_name.lower() in ['espacio colaborativo','espacios colaborativo', 'collaborative space']:
                     self.number_sectionErrors = 0
 
@@ -337,6 +364,7 @@ class Doc:
                 seq_list = [l.split('"')[1] for l in chap_txt if "sequential" in l]
 
                 pub_seq_struct, all_seq_struct = self.describeSequen(seq_list, readme, file_index, num_id)
+                self.chapterDetails.append(self.tmp_dictionary)
                 # file_index.write('</li>\n')
                 # frame_izquierdo.write('</li>\n<span class="pt-3 col-1 dropdown-toggle"></span>\n</div>\n')
 
@@ -350,7 +378,6 @@ class Doc:
 
 
     def describeSequen(self, seq, readme, file_index, num_id):
-
         pub_seq = OrderedDict()
         all_seq = OrderedDict()
         # file_index.write('\n<ul>\n')
@@ -432,8 +459,8 @@ class Doc:
         #print('\n\n')
         pub_uni = OrderedDict()
         all_uni = OrderedDict()
+        number_sectionErrors = 0
         # direccion = ''
-            
         for u in uni:
             u += '.xml'
             uFile = self.vert_path / u
@@ -496,6 +523,8 @@ class Doc:
                 #    comp_list.append(['discussion', prob])
             if(u_name.lower() != 'encuesta de satisfacción'):
                 if not prob_list:
+                    number_sectionErrors += 1
+                    self.tmp_dictionary['total_errors'] += number_sectionErrors
                     self.number_emptyContent += 1
             #print(prob_list)
             # print(u_name)
@@ -523,6 +552,8 @@ class Doc:
         pat2 = re.compile(r'(\S+)="([^"]+)"')
         num_files = 0
         aux_u_name = name
+        number_errorsUrl = 0
+        number_errorsVideo = 0
         # files_list = []
         # txt_prob = ''
         #file_idx_prob = open('%s/idx-%s.html'%(direccion,aux_u_name),'w')
@@ -576,9 +607,9 @@ class Doc:
                     
                     criterion_dictionary = self.checkUrls(file_adress)
                     if criterion_dictionary['urls']:
-                        self.number_urlErrors += self.getNumberErrors(criterion_dictionary)
-                    
-                    
+                        number_errorsUrl = self.getNumberErrors(criterion_dictionary)
+                        self.number_urlErrors += number_errorsUrl
+
                     readme.write('\t\t\t* [{0}] - [{1}]({1})\n'.format(pro[0], aux_pFile))
                     #print(str(p_txt_html))
                     '''
@@ -601,6 +632,7 @@ class Doc:
                 file_adress = self.path / pro[0] / pro_name
                 
                 if not self.checkVideos(file_adress):
+                    number_errorsVideo += 1
                     self.number_videoErrors += 1
                 
                 '''
@@ -690,6 +722,12 @@ class Doc:
                 '<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>'%(txt_prob, txt_file))
             file.close()
         '''
+        
+        if number_errorsUrl > 0:
+            self.tmp_dictionary['total_errors'] += number_errorsUrl
+        if number_errorsVideo > 0:
+            self.tmp_dictionary['total_errors'] += number_errorsVideo
+        
         # self.reescribir_archivos(files_list, txt_prob)
         return pub_prob, pro_list
 
@@ -741,6 +779,7 @@ class Doc:
         txt_prob = ''
         # files_list = []
         num_drafts_prob = 0
+        number_errorsUrl = 0
         #print(probs)
         #print(files_list)
         #print('\n\n')
@@ -773,11 +812,11 @@ class Doc:
             if pro[0] == 'problem':
                 readme.write('\t\t\t* [{0}]\(Draft\) {1} - [{2}]({2})\n'.format(pro[0], p_name, aux_pFile))
             else:
-                
                 criterion_dictionary = self.checkUrls(file_adress)
                 if criterion_dictionary['urls']:
-                    self.number_urlErrors += self.getNumberErrors(criterion_dictionary)
-                
+                    number_errorsUrl = self.getNumberErrors(criterion_dictionary)
+                    self.number_urlErrors += number_errorsUrl
+    
                 readme.write('\t\t\t* [{0}]\(Draft\) - [{1}]({1})\n'.format(pro[0], aux_pFile))
                 '''
                 txt_prob = '%s<a class="btn btn-outline-dark border-0 col-auto" href="%s.html" data-toggle="button" aria-pressed="false" autocomplete="off">Page</a>\n'%(txt_prob, aux_u_name)
@@ -787,6 +826,8 @@ class Doc:
                 '''
             # frame_derecho.close()
             prob_list.append((str(pFile), '(draft)'+pro[0]))
+        if number_errorsUrl > 0:
+            self.tmp_dictionary['total_errors'] += self.tmp_dictionary['total_errors'] + number_errorsUrl
         # self.reescribir_archivos(files_list, txt_prob)
         return prob_list
 
