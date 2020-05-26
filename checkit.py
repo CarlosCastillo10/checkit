@@ -45,11 +45,11 @@ class Doc:
         file_index.write('<!DOCTYPE html>\n<html lang="en">\n<head>\n<title>%s</title>\n<meta charset="utf-8">\n'
             '<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">\n'
             '<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">\n</head>\n<body>\n'
-            '<div class="container pt-4">\n<div class="card text-white bg-info mb-5 mt-5">\n<H5 class="card-header text-center">REPORTE - %s</H5>\n</div>\n'
+            '<div class="container">\n<div class="card border-info mb-3 mt-5">\n<H5 class="card-header bg-info text-white text-center">REPORTE - %s</H5>\n<div class="card-body">\n'
             %(self.course_title, self.course_title.upper()))
         self.formResumeCard(file_index)
         self.formDetailsCard(file_index)
-        file_index.write('</div>\n'
+        file_index.write('</div>\n</div>\n</div>\n'
             '<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>\n'
             '<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>\n'
             '<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>\n'
@@ -59,7 +59,7 @@ class Doc:
     def formResumeCard(self, file_index):
         file_index.write('<div class="card bg-transparent border-success mb-5">\n<div class="card-header text-center bg-success border-success text-white">RESUMEN</div>\n'
             '<div class="card-body">\n<div class="table-responsive-sm">\n<table class="table table-sm table-hover">\n'
-            '<p class="card-text text-dark">Aqui escribir algo</p>'
+            '<p class="card-text text-dark">Aqui escribir algo</p>\n'
             '<thead class="table-success">\n<tr>\n<th scope="col"># Errores</th>\n<th scope="col">Criterio</th>\n<th scope="col">Estado</th>\n</tr>\n</thead>\n<tbody>\n')
         total_errors = self.formResumeTable(file_index)
         file_index.write('</tbody>\n<caption>Total errores: %d\n</table>\n</div>\n</div>\n</div>\n'%total_errors)
@@ -90,18 +90,39 @@ class Doc:
             num_heading += 1
             file_index.write('<div class="card border-info mb-3">\n'
                 '<div class="card-header" id="heading%d">\n'
-                '<button class="btn btn-outline-light" data-toggle="collapse" data-target="#collapse%d" aria-expanded="true" aria-controls="collapseOne">\n'
+                '<button class="btn btn-outline-light" data-toggle="collapse" data-target="#collapse%d" aria-expanded="true" aria-controls="collapse%d">\n'
                 '<svg class="bi bi-plus-square-fill text-dark" width="2em" height="2em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">\n'
                 '<path fill-rule="evenodd" d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm6.5 4a.5.5 0 0 0-1 0v3.5H4a.5.5 0 0 0 0 1h3.5V12a.5.5 0 0 0 1 0V8.5H12a.5.5 0 0 0 0-1H8.5V4z"/>\n'
-                '</svg>\n</button>\n%s       '%(num_heading, num_heading, chap_detail['chapter_name']))
+                '</svg>\n</button>\n%s       '%(num_heading, num_heading, num_heading, chap_detail['chapter_name']))
             if chap_detail['total_errors'] > 0:
                 file_index.write('<span class="badge badge-pill badge-danger">')
             else:
                 file_index.write('<span class="badge badge-pill badge-success">')
             file_index.write('%d</span>\n</div>\n'
-                '<div id="collapse%d" class="collapse hide" aria-labelledby="headingOne" data-parent="#accordion">\n'
-                '<div class="card-body">Aqui van las unidades de esta secction\n</div>\n</div>\n</div>\n'%(chap_detail['total_errors'],num_heading))
+                '<div id="collapse%d" class="collapse hide" aria-labelledby="heading%d" data-parent="#accordion">\n'
+                '<div class="card-body">\n<div id="accordion1">\n'%(chap_detail['total_errors'],num_heading, num_heading))
+            self.formDetailSections(file_index, chap_detail['sections'])
+            file_index.write('</div>\n</div>\n</div>\n</div>\n')    
         file_index.write('</div>\n</div>\n</div>\n')
+    
+    def formDetailSections(self, file_index, section_list):
+        for section in section_list:
+            self.num_subHeading += 1
+            aux_typeCard = ''
+            if section['total_errors'] > 0:
+                file_index.write('<div class="card border-danger mb-3">\n')
+                aux_typeCard = '%s<span class="badge badge-pill badge-danger text-center">%d</span>\n'%(aux_typeCard, section['total_errors'])
+            else:
+                file_index.write('<div class="card border-success mb-3">\n')
+                aux_typeCard = '%s<span class="badge badge-pill badge-success text-center">%d</span>\n'%(aux_typeCard, section['total_errors'])
+            
+            file_index.write('<div class="card-header" id="subHeading%d">\n'
+                '<button class="btn btn-outline-light" data-toggle="collapse" data-target="#subcollapse%d" aria-expanded="true" aria-controls="subcollapse%d">\n'
+                    '<svg class="bi bi-plus-square-fill text-dark" width="1.25em" height="1.25em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">\n'
+                    '<path fill-rule="evenodd" d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm6.5 4a.5.5 0 0 0-1 0v3.5H4a.5.5 0 0 0 0 1h3.5V12a.5.5 0 0 0 1 0V8.5H12a.5.5 0 0 0 0-1H8.5V4z"/>\n'
+                    '</svg>\n</button>\n%s     %s</div>\n<div id="subcollapse%d" class="collapse hide" aria-labelledby="subHeading%d" data-parent="#accordion1">\n'
+                    '<div class="card-body">Aqui va el detalle de errores</div>\n</div>\n</div>\n'%(self.num_subHeading, self.num_subHeading, self.num_subHeading, section['name_seq'], aux_typeCard, self.num_subHeading, self.num_subHeading))    
+    
     # Metodo para validar cada url de cada archivo
     def checkUrls(self, file_adress):
         dict_reportUrl = {'file': '','urls':self.getUrls(file_adress)}
@@ -234,6 +255,7 @@ class Doc:
         self.type_content = 0
         self.course_title = ''
         self.num_id_seq = 0
+        self.num_subHeading = 0
 
         # Variables nuevas
         self.number_urlErrors = 0
@@ -273,6 +295,8 @@ class Doc:
         self.all_problems_struct = OrderedDict()
         self.chapterDetails = []
         self.tmp_dictionary = {}
+        self.seq_Details_list = []
+        self.seqDetails_dict  = {}
 
         ## obtener estructura del curso
         self.__makeCourse()
@@ -331,7 +355,7 @@ class Doc:
 
                 first_line = chap_txt[0]
                 chap_name = first_line.split('"')[1]
-                self.tmp_dictionary = {'chapter_name': chap_name,'total_errors': 0}
+                self.tmp_dictionary = {'chapter_name': chap_name,'total_errors': 0,'sections':[]}
                 if chap_name.lower() in ['espacio colaborativo','espacios colaborativo', 'collaborative space']:
                     self.number_sectionErrors = 0
 
@@ -373,6 +397,7 @@ class Doc:
 
                 self.all_problems_struct['('+c[-9:-4]+')'+chap_name] = (str(cFile), all_seq_struct)
             #print(self.pathsHtml)
+        
 
         self.public_problems_struct = dict((k, v) for k, v in self.public_problems_struct.items() if v)
 
@@ -380,9 +405,11 @@ class Doc:
     def describeSequen(self, seq, readme, file_index, num_id):
         pub_seq = OrderedDict()
         all_seq = OrderedDict()
+        tmp_seqDetails_list = []
         # file_index.write('\n<ul>\n')
         # frame_izquierdo.write('\n<ul class="collapse navbar-nav flex-column" id="submenu%d">\n'%num_id) 
         for s in seq:
+            self.seqDetails_dict  = {}
             self.num_units = 0;
             unpublished = False
             s_name = s + '.xml'
@@ -392,6 +419,7 @@ class Doc:
             sFile = sFile.relative_to(*sFile.parts[:1])
             first_line = seq_txt[0]
             sequ_name = first_line.split('"')[1]
+            self.seqDetails_dict = {'name_seq': sequ_name, 'total_errors': 0}
             readme.write('\t* [Subsection] {0} - [{1}]({1})  \n'.format(sequ_name, aux_sFile))
             self.tmp_name_equal = sequ_name
             '''
@@ -435,6 +463,7 @@ class Doc:
                         all_dict2 = self.describeDraftUnit(self.draft_problems_struct[s], readme, file_index, sequ_name)
                         for d in all_dict2:
                             all_dict[d] = all_dict2[d]
+                
 
                 all_seq['('+s_name[-9:-4]+')'+sequ_name] = (str(sFile), all_dict)
 
@@ -447,9 +476,13 @@ class Doc:
                 else:
                     all_dict = self.describeDraftUnit(self.draft_problems_struct[s], readme, file_index, sequ_name)
                 all_seq['('+s_name[-9:-4]+')'+sequ_name] = (str(sFile), all_dict)
-
+            
+            tmp_seqDetails_list.append(self.seqDetails_dict)
         # frame_izquierdo.write('</ul>\n')
         # file_index.write('</ul>\n')
+        self.tmp_dictionary['sections'] = tmp_seqDetails_list
+        print(self.tmp_dictionary)
+        print('\n')
         pub_seq = dict((k, v) for k, v in pub_seq.items() if v)
         return pub_seq, all_seq
 
@@ -521,11 +554,13 @@ class Doc:
                 #elif '<discussion ' in l:
                 #    prob = l.split('"')[1]
                 #    comp_list.append(['discussion', prob])
+            
             if(u_name.lower() != 'encuesta de satisfacción'):
                 if not prob_list:
                     number_sectionErrors += 1
                     self.tmp_dictionary['total_errors'] += number_sectionErrors
                     self.number_emptyContent += 1
+                    self.seqDetails_dict['total_errors'] += number_sectionErrors
             #print(prob_list)
             # print(u_name)
             pub_dict, all_dict = self.describeProb(prob_list, readme, file_index, aux_u_name.lower())
@@ -604,11 +639,17 @@ class Doc:
                     readme.write('\t\t\t* [{0}] {1} - [{2}]({2})\n'.format(pro[0], p_name, aux_pFile))
                     #readme.write('\t\t\t\t Weight: {0}, Max Attempts: {1}\n'.format(weight, max_att))
                 else:
+
+                    number_seqErrorsUrl = 0
                     
                     criterion_dictionary = self.checkUrls(file_adress)
                     if criterion_dictionary['urls']:
                         number_errorsUrl = self.getNumberErrors(criterion_dictionary)
+                        number_seqErrorsUrl = number_errorsUrl
                         self.number_urlErrors += number_errorsUrl
+                    
+                    self.seqDetails_dict['total_errors'] +=  number_seqErrorsUrl
+                    
 
                     readme.write('\t\t\t* [{0}] - [{1}]({1})\n'.format(pro[0], aux_pFile))
                     #print(str(p_txt_html))
@@ -631,9 +672,14 @@ class Doc:
                 pFile = self.path / pro[0] / pro_name
                 file_adress = self.path / pro[0] / pro_name
                 
+                number_seqErrorsVideo = 0
+                
                 if not self.checkVideos(file_adress):
                     number_errorsVideo += 1
+                    number_seqErrorsVideo += 1
                     self.number_videoErrors += 1
+
+                self.seqDetails_dict['total_errors'] += number_seqErrorsVideo
                 
                 '''
                 frame_derecho.write('<h4>VIDEO: %s</h4>\n<iframe class=»youtube-player» type=»text/html» width=»846″ height=»484″ src=%s ' 
@@ -812,10 +858,15 @@ class Doc:
             if pro[0] == 'problem':
                 readme.write('\t\t\t* [{0}]\(Draft\) {1} - [{2}]({2})\n'.format(pro[0], p_name, aux_pFile))
             else:
+                number_seqErrorsUrl = 0
+                
                 criterion_dictionary = self.checkUrls(file_adress)
                 if criterion_dictionary['urls']:
                     number_errorsUrl = self.getNumberErrors(criterion_dictionary)
+                    number_seqErrorsUrl = number_errorsUrl
                     self.number_urlErrors += number_errorsUrl
+                
+                self.seqDetails_dict['total_errors'] +=  number_seqErrorsUrl
     
                 readme.write('\t\t\t* [{0}]\(Draft\) - [{1}]({1})\n'.format(pro[0], aux_pFile))
                 '''
