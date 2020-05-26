@@ -33,82 +33,138 @@ class Doc:
             if 'chapter' in cline:
                 chap_name = cline.split('"')[1]
                 self.chapter_list.append(chap_name)
-    def checkUrls(self, file_adress):
-        dict_reportUrl = {'file': '','urls':self.getUrls(file_adress)}
-        print(dict_reportUrl)
-        print('\n')
-
-            
-    def getUrls(self, file_adress):
-        '''
-        file = open(file_adress, 'r') # Abrir archivo
-        file_content = archivo.readlines() # Leer el contenido del archivo
-        '''
-        list_stateUrls = []
-        file_content = file_adress.open().readlines()
-
-        # Expresión regular que obtiene solo las urls
-        pattern = re.compile(r'http(s)?:\/\/?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)(\?)?\w(=)?\w*')
-
-        list_url = [] # Lista que almacenara las url
-
-        # Analisis de cada linea del html
-        for line in file_content:
-            match = pattern.search(line)
-            # Si encuentra alguna linea que cumpla la expresión regular definida
-            if match:
-                list_url.append(match.group())
-        if list_url:
-            list_stateUrls = self.validateUrlStatus(list_url)
-        
-        return list_stateUrls
-
-    def validateUrlStatus(self, list_url):
-        list_states = []
-        # Recorrer la lista de urls
-        for url in list_url:
-            try:
-                # Se declara un diccionario estado para registrar la validez de cada url
-                dict_urlState = {'url' : url, 'estado' : ''}
-
-                response, content = httplib2.Http().request(url)
-                if response.status == 200:
-                    dict_urlState['estado'] = 'correcto'
-                else:
-                    dict_urlState['estado'] = 'incorrecto'
-                    # sys.exit (-1)
-                list_states.append(dict_urlState)
-            except httplib2.HttpLib2Error as err:
-                print('No es posible acceder a la url:  %s. Error : %s' % (url, err))
-            
-        return list_states
-
-    def obtener_video(self, archivo):
-        tree = ET.parse(str(archivo))
-        root = tree.getroot()
-        if 'youtube_id_1_0' in root.attrib:
-            url = (root.attrib['youtube_id_1_0'])
-            self.url_video = 'https://www.youtube.com/watch?v=%s'%url
-            return("https://www.youtube.com/embed/%s" % url)
-        else:
-            self.url_video = ''
-        return ''
     
     def obtener_course_title(self):
         tree = ET.parse(str(self.course_file))
         root = tree.getroot()
         if 'display_name' in root.attrib:
             self.course_title = (root.attrib['display_name']).upper()
+    
+    # Metodo para formar el card principal
+    def formMainCard(self, file_index):
+        file_index.write('<!DOCTYPE html>\n<html lang="en">\n<head>\n<title>%s</title>\n<meta charset="utf-8">\n'
+            '<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">\n'
+            '<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">\n</head>\n<body>\n'
+            '<div class="container pt-4">\n<div class="card text-white bg-info mb-5 mt-5">\n<H5 class="card-header text-center">REPORTE - %s</H5>\n</div>\n'
+            %(self.course_title, self.course_title.upper()))
+        self.formResumeCard(file_index)
+        file_index.write('</div>\n'
+            '<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>\n'
+            '<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>\n'
+            '<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>\n'
+            '</body>\n</html>')
+ 
+    # Metodo para formar el card de Resumen
+    def formResumeCard(self, file_index):
+        file_index.write('<div class="card bg-transparent border-success mb-3">\n<div class="card-header text-center bg-success border-success text-white">RESUMEN</div>\n'
+            '<div class="card-body">\n<div class="table-responsive-sm">\n<table class="table table-sm table-hover">\n'
+            '<p class="card-text text-dark">Aqui escribir algo</p>'
+            '<thead class="table-success">\n<tr>\n<th scope="col"># Errores</th>\n<th scope="col">Criterio</th>\n<th scope="col">Estado</th>\n</tr>\n</thead>\n<tbody>\n')
+        total_errors = self.formResumeTable(file_index)
+        file_index.write('</tbody>\n<caption>Total errores: %d\n</table>\n</div>\n</div>\n</div>\n'%total_errors)
+    
+    # Metodo para formar la tabla de resumen
+    def formResumeTable(self, file_index):
+        total_errors = 0
+        for criterion in self.criteria_list:
+            total_errors += criterion['errores']
+            file_index.write('<tr>\n<th scope="row">%s</th>\n<td>%s</td>\n<td>\n'%(criterion['errores'], criterion['criterio']))
+            if criterion['errores'] == 0:
+                file_index.write('<svg class="bi bi-check-circle-fill text-success" width="1.5em" height="1.5em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">\n'
+                    '<path fill-rule="evenodd" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>\n'
+                    '</svg>\n')
+            else:
+                file_index.write('<svg class="bi bi-x-octagon-fill text-danger" width="1.5em" height="1.5em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">\n'
+                    '<path fill-rule="evenodd" d="M11.46.146A.5.5 0 0 0 11.107 0H4.893a.5.5 0 0 0-.353.146L.146 4.54A.5.5 0 0 0 0 4.893v6.214a.5.5 0 0 0 .146.353l4.394 4.394a.5.5 0 0 0 .353.146h6.214a.5.5 0 0 0 .353-.146l4.394-4.394a.5.5 0 0 0 .146-.353V4.893a.5.5 0 0 0-.146-.353L11.46.146zm.394 4.708a.5.5 0 0 0-.708-.708L8 7.293 4.854 4.146a.5.5 0 1 0-.708.708L7.293 8l-3.147 3.146a.5.5 0 0 0 .708.708L8 8.707l3.146 3.147a.5.5 0 0 0 .708-.708L8.707 8l3.147-3.146z"/>\n'
+                    '</svg>\n')
+            file_index.write('</td>\n</tr>\n')
+        return total_errors
 
-    def obtener_titulo_video(self):
-        video_title = ''
+    # Metodo para validar cada url de cada archivo
+    def checkUrls(self, file_adress):
+        dict_reportUrl = {'file': '','urls':self.getUrls(file_adress)}
+        return dict_reportUrl
+
+    # Metodo para obtener el numero de errores de cada criterio
+    def getNumberErrors(self, criterion_dictionary):
+        num_errors = 0 
+        for criterion in criterion_dictionary['urls']:
+            if 'incorrecto' in criterion['estado']:
+                num_errors += 1
+        return num_errors
+    
+    # Metodo para obtener las url de cada archivo
+    def getUrls(self, file_adress):
+
+        list_stateUrls = []
+        file_content = file_adress.open().readlines()
+
+        # Expresión regular que obtiene solo las urls
+        url_pattern = re.compile(r'["]http([^"]*)')
+
+        list_url = [] # Lista que almacenara las url
+
+        for line in file_content:
+            match = url_pattern.search(line)
+            if match:
+                list_url.append(match.group().lstrip('"'))
+        if list_url:
+            list_stateUrls = self.validateUrlStatus(list_url)
+        
+        return list_stateUrls
+
+    # Metodo para validar cada url
+    def validateUrlStatus(self, list_url):
+        list_states = []
+        for url in list_url:
+            try:
+                # Diccionario donde se almacena la url y su estado
+                dict_urlState = {'url' : url, 'estado' : ''}
+
+                response, content = httplib2.Http(disable_ssl_certificate_validation=True).request(url)
+                if response.status == 200:
+                    dict_urlState['estado'] = 'correcto'
+                else:
+                    dict_urlState['estado'] = 'incorrecto'
+                list_states.append(dict_urlState)
+            except httplib2.HttpLib2Error as err:
+                pass
+            
+        return list_states
+        
+    # Metodo para validar cada video de la carpeta 'video'
+    def checkVideos(self, file_adress):
+        tree = ET.parse(str(file_adress))
+        root = tree.getroot()
+        video_url = ''
+        if 'youtube_id_1_0' in root.attrib:
+            video_url = 'https://www.youtube.com/watch?v=%s'%(root.attrib['youtube_id_1_0'])
+        
+        return self.getVideoStatus(video_url)
+    
+    # Metodo que permite verificar si el video esta disponible
+    def getVideoStatus(self, video_url):
+        video_status = True
         try:
-            if self.url_video:
-                video = pafy.new(self.url_video)
-                video_title = video.title
+            if video_url:
+                video = pafy.new(video_url)
+                video_status = True
         except:
-            video_title ='video no disponible'
-        return video_title
+            video_status = False
+        return video_status
+    '''
+    def checkEmptyContent(self, file_adress):
+        tree = ET.parse(file_adress)
+        root = tree.getroot()
+
+        # Lista que obtiene la url de cada nodo hijo 
+        list_urlNames = [child.attrib.get('url_name') for child in root ]
+        
+        if not list_urlNames:
+            return False
+        
+        return True
+    '''
 
     # Obtener estructura del curso
     def __makeDraftStruct(self):
@@ -157,6 +213,12 @@ class Doc:
         self.course_title = ''
         self.num_id_seq = 0
 
+        # Variables nuevas
+        self.number_urlErrors = 0
+        self.number_sectionErrors = 1
+        self.number_videoErrors = 0
+        self.number_emptyContent = 0
+
         # Variables de Path
         self.path = Path(start_path)
         self.course_path = self.path / 'course'
@@ -180,6 +242,8 @@ class Doc:
         ## lista de capitulos
         self.chapter_list = []
         self.pathsHtml = []
+        self.criteria_list = [{'criterio':'seccion espacio colaborativo', 'errores': 0}, {'criterio': 'url con error', 'errores': 0},
+            {'criterio':'videos con error','errores':0}, {'criterio': 'contenido vacio','errores': 0},{'criterio':'pdf con error', 'errores': 0}]
 
         ## Estructura de secciones y unidades
         self.draft_problems_struct = OrderedDict()
@@ -201,6 +265,7 @@ class Doc:
         os.mkdir('%s/course-report'%self.path) # Crear directorio 'course-report'
         
         file_index = open(str(self.path)+'/course-report/index.html','w') # Crear archivo 'index.html'
+        '''
         file_index.write('<html>\n<head>\n<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>\n</head>\n'
             '<style>\nimg{\ndisplay:inline-block;\nwidth: %s\n}\n'
             'body{\nborder-bottom: 3px solid #CE7D35;\n}\n'
@@ -208,13 +273,20 @@ class Doc:
             '<title>REPORTE %s</title>\n</head>\n<body>\n<div>\n'
             '<img src="http://opencampus.utpl.edu.ec/static/themes/utpl_final/images/openCampus_logo.3c9532a0c56d.png">\n'
             '<h1>%s\n</h1>\n</div>\n<ul>\n'%('15%;','70%;',self.course_title, self.course_title))
+        '''
 
         readme = open(str(self.path)+'/README.md', 'w')
         readme.write("###Course structure - [course/{0}](course/{0})\n".format(self.course_file.name))     
         self.describeChapter(readme, file_index)
-        readme.close()
-        file_index.write('</ul>\n</body>\n</html>')
+        self.criteria_list[0]['errores'] = self.number_sectionErrors
+        self.criteria_list[1]['errores'] = self.number_urlErrors
+        self.criteria_list[2]['errores'] = self.number_videoErrors
+        self.criteria_list[3]['errores'] = self.number_emptyContent
+        self.formMainCard(file_index)
         file_index.close()
+        readme.close()
+        # file_index.write('</ul>\n</body>\n</html>')
+        # file_index.close()
 
     # Obtener menu principal
     def describeChapter(self, readme, file_index):
@@ -233,12 +305,14 @@ class Doc:
 
                 first_line = chap_txt[0]
                 chap_name = first_line.split('"')[1]
+                if chap_name.lower() in ['espacio colaborativo','espacios colaborativo', 'collaborative space']:
+                    self.number_sectionErrors = 0
 
                 readme.write('* [Section] {0} - [{1}]({1})\n'.format(chap_name, aux_cFile))
 
                 # Formar menu principal
                 num_id+=1
-                file_index.write('<li>%s'%chap_name)
+                # file_index.write('<li>%s'%chap_name)
                 '''
                 frame_izquierdo.write('<div class="row">\n<li class="col-11 nav-item" id="principal"><a class="nav-link" '
                     'href="#" role="button" data-toggle="collapse" data-target="#submenu%d" aria-haspopup="true" '
@@ -262,9 +336,8 @@ class Doc:
                 # eliminar el item inicial
                 seq_list = [l.split('"')[1] for l in chap_txt if "sequential" in l]
 
-
                 pub_seq_struct, all_seq_struct = self.describeSequen(seq_list, readme, file_index, num_id)
-                file_index.write('</li>\n')
+                # file_index.write('</li>\n')
                 # frame_izquierdo.write('</li>\n<span class="pt-3 col-1 dropdown-toggle"></span>\n</div>\n')
 
                 ### estructura publica
@@ -280,7 +353,7 @@ class Doc:
 
         pub_seq = OrderedDict()
         all_seq = OrderedDict()
-        file_index.write('\n<ul>\n')
+        # file_index.write('\n<ul>\n')
         # frame_izquierdo.write('\n<ul class="collapse navbar-nav flex-column" id="submenu%d">\n'%num_id) 
         for s in seq:
             self.num_units = 0;
@@ -306,7 +379,7 @@ class Doc:
                 
                 if (len(unit_list) > 1):
                     self.num_id_seq +=1
-                    file_index.write('<li>%s'%self.tmp_name_equal)
+                    # file_index.write('<li>%s'%self.tmp_name_equal)
                     '''
                     frame_izquierdo.write('<div class="row">\n<li class="col-11 nav-item" id="principal2"><a class="nav-link" '
                         'href="#" role="button" data-toggle="collapse" data-target="#menu-submenu%d" aria-haspopup="true" '
@@ -315,10 +388,10 @@ class Doc:
                     
                     frame_izquierdo.write('\n<ul class="collapse navbar-nav flex-column" id="menu-submenu%d">\n'%self.num_id_seq) 
                     '''
-                    file_index.write('\n<ul>\n')
+                    # file_index.write('\n<ul>\n')
                     pub_dict, all_dict = self.describeUnit(unit_list, readme, file_index, sequ_name)
                     # frame_izquierdo.write('</ul>\n')
-                    file_index.write('</ul>\n')
+                    # file_index.write('</ul>\n')
                 else:
                     pub_dict, all_dict = self.describeUnit(unit_list, readme, file_index, sequ_name)
                 pub_seq[sequ_name] = pub_dict
@@ -349,7 +422,7 @@ class Doc:
                 all_seq['('+s_name[-9:-4]+')'+sequ_name] = (str(sFile), all_dict)
 
         # frame_izquierdo.write('</ul>\n')
-        file_index.write('</ul>\n')
+        # file_index.write('</ul>\n')
         pub_seq = dict((k, v) for k, v in pub_seq.items() if v)
         return pub_seq, all_seq
 
@@ -373,10 +446,12 @@ class Doc:
             aux_u_name = u_name
             # aux_u_name = self.eliminar_carateres_especiales(u_name.replace(' ','-'))
             #print(uni_txt[0])
+            '''
             if (len(uni) > 1):
                 file_index.write('<li>%s</li>\n'%u_name)
             else:
                 file_index.write('<li>%s</li>\n'%sequ_name)
+            '''
             ''''
             # Formar el submenu
             if (len(uni) > 1):
@@ -419,9 +494,11 @@ class Doc:
                 #elif '<discussion ' in l:
                 #    prob = l.split('"')[1]
                 #    comp_list.append(['discussion', prob])
-
+            if(u_name.lower() != 'encuesta de satisfacción'):
+                if not prob_list:
+                    self.number_emptyContent += 1
             #print(prob_list)
-            print(u_name)
+            # print(u_name)
             pub_dict, all_dict = self.describeProb(prob_list, readme, file_index, aux_u_name.lower())
             pub_uni[u_name] = pub_dict
             all_uni['('+u[-9:-4]+')'+u_name] = (str(uFile), all_dict)
@@ -429,7 +506,6 @@ class Doc:
         return pub_uni, all_uni
 
     def describeProb(self, prob_list, readme, file_index, name):
-       
         '''
         print(prob_list)
         print(len(prob_list))
@@ -497,7 +573,12 @@ class Doc:
                     readme.write('\t\t\t* [{0}] {1} - [{2}]({2})\n'.format(pro[0], p_name, aux_pFile))
                     #readme.write('\t\t\t\t Weight: {0}, Max Attempts: {1}\n'.format(weight, max_att))
                 else:
-                    self.checkUrls(file_adress)
+                    
+                    criterion_dictionary = self.checkUrls(file_adress)
+                    if criterion_dictionary['urls']:
+                        self.number_urlErrors += self.getNumberErrors(criterion_dictionary)
+                    
+                    
                     readme.write('\t\t\t* [{0}] - [{1}]({1})\n'.format(pro[0], aux_pFile))
                     #print(str(p_txt_html))
                     '''
@@ -517,7 +598,11 @@ class Doc:
                 # print('Ok')
                 pro_name = pro[1]+'.xml'
                 pFile = self.path / pro[0] / pro_name
-                video_title = self.obtener_video(pFile)
+                file_adress = self.path / pro[0] / pro_name
+                
+                if not self.checkVideos(file_adress):
+                    self.number_videoErrors += 1
+                
                 '''
                 frame_derecho.write('<h4>VIDEO: %s</h4>\n<iframe class=»youtube-player» type=»text/html» width=»846″ height=»484″ src=%s ' 
                     'frameborder=»0″></iframe>\n'%(self.obtener_titulo_video().upper(),video_title))
@@ -640,7 +725,7 @@ class Doc:
             # frame_derecho = open(str(self.path)+'/course-html/content/%s/%s/%s/%s.html'%(path,aux_sequ_name.lower(),aux_u_name.lower(),aux_u_name.lower()), 'w')
             # files_list.append(str(self.path)+'/course-html/content/%s/%s/%s/%s.html'%(path,aux_sequ_name.lower(),aux_u_name.lower(),aux_u_name.lower()))
             # files_list.append(str(self.path)+'/course-html/content/%s/%s/%s/%s.html'%(path,aux_sequ_name.lower(),aux_u_name.lower(),aux_u_name.lower()))
-            file_index.write('<li>%s</li>\n'%u_name)
+            # file_index.write('<li>%s</li>\n'%u_name)
             readme.write('\t\t* [Unit]\(Draft\) {0} - [{1}]({1})\n'.format(u_name, aux_uFile))
             prob_list = self.describeDraftProb(u[1:], readme, aux_u_name.lower())
             # frame_derecho.close()
@@ -674,6 +759,9 @@ class Doc:
             
             pFile_html = self.draft_path / pro[0] / pro_name_html
             
+            # Variable nueva
+            file_adress = self.draft_path / pro[0] / pro_name_html # direccion del archivo
+            
             p_txt = pFile.open().readlines()
 
             p_txt_html = pFile_html.open().readlines()
@@ -685,6 +773,11 @@ class Doc:
             if pro[0] == 'problem':
                 readme.write('\t\t\t* [{0}]\(Draft\) {1} - [{2}]({2})\n'.format(pro[0], p_name, aux_pFile))
             else:
+                
+                criterion_dictionary = self.checkUrls(file_adress)
+                if criterion_dictionary['urls']:
+                    self.number_urlErrors += self.getNumberErrors(criterion_dictionary)
+                
                 readme.write('\t\t\t* [{0}]\(Draft\) - [{1}]({1})\n'.format(pro[0], aux_pFile))
                 '''
                 txt_prob = '%s<a class="btn btn-outline-dark border-0 col-auto" href="%s.html" data-toggle="button" aria-pressed="false" autocomplete="off">Page</a>\n'%(txt_prob, aux_u_name)
