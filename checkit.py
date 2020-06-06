@@ -27,18 +27,28 @@ class Doc:
         """
         course_file_list = list(self.course_path.iterdir())
         self.course_file = [x for x in course_file_list if x.suffix == '.xml'][0]
-        self.obtener_course_title()
+        self.getCourseTitle()
         course_txt = self.course_file.open().readlines()
         for cline in course_txt:
             if 'chapter' in cline:
                 chap_name = cline.split('"')[1]
                 self.chapter_list.append(chap_name)
     
-    def obtener_course_title(self):
+    
+    def getCourseTitle(self):
         tree = ET.parse(str(self.course_file))
         root = tree.getroot()
         if 'display_name' in root.attrib:
             self.course_title = (root.attrib['display_name']).upper()
+    
+    def setConfigCourse(self):
+        file = open('config.txt', 'r')
+        for line in file:
+            if (line and line.strip()):   
+                criteria_dict = {'criteriaName':line.replace('\n',''), 'errors': 0}
+                self.criteria_list.append(criteria_dict)
+        
+        
     
     # Metodo para formar el card principal
     def formMainCard(self, file_index):
@@ -68,9 +78,9 @@ class Doc:
     def formResumeTable(self, file_index):
         total_errors = 0
         for criterion in self.criteria_list:
-            total_errors += criterion['errores']
-            file_index.write('<tr>\n<th scope="row">%s</th>\n<td>%s</td>\n<td>\n'%(criterion['errores'], criterion['criterio']))
-            if criterion['errores'] == 0:
+            total_errors += criterion['errors']
+            file_index.write('<tr>\n<th scope="row">%s</th>\n<td>%s</td>\n<td>\n'%(criterion['errors'], criterion['criteriaName']))
+            if criterion['errors'] == 0:
                 file_index.write('<svg class="bi bi-check-circle-fill text-success" width="1.5em" height="1.5em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">\n'
                     '<path fill-rule="evenodd" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>\n'
                     '</svg>\n')
@@ -287,8 +297,8 @@ class Doc:
         ## lista de capitulos
         self.chapter_list = []
         self.pathsHtml = []
-        self.criteria_list = [{'criterio':'seccion espacio colaborativo', 'errores': 0}, {'criterio': 'url con error', 'errores': 0},
-            {'criterio':'videos con error','errores':0}, {'criterio': 'contenido vacio','errores': 0},{'criterio':'pdf con error', 'errores': 0}]
+
+        self.criteria_list = []    
         ## Estructura de secciones y unidades
         self.draft_problems_struct = OrderedDict()
         self.public_problems_struct = OrderedDict()
@@ -297,6 +307,7 @@ class Doc:
         self.tmp_dictionary = {}
         self.seq_Details_list = []
         self.seqDetails_dict  = {}
+        self.tmp_subsectionsDict = {}
 
         ## obtener estructura del curso
         self.__makeCourse()
@@ -326,12 +337,13 @@ class Doc:
         readme = open(str(self.path)+'/README.md', 'w')
         readme.write("###Course structure - [course/{0}](course/{0})\n".format(self.course_file.name))     
         self.describeChapter(readme, file_index)
-        self.criteria_list[0]['errores'] = self.number_sectionErrors
-        self.criteria_list[1]['errores'] = self.number_urlErrors
-        self.criteria_list[2]['errores'] = self.number_videoErrors
-        self.criteria_list[3]['errores'] = self.number_emptyContent
-        
+        self.setConfigCourse()
+        self.criteria_list[0]['errors'] = self.number_sectionErrors
+        self.criteria_list[1]['errors'] = self.number_urlErrors
+        self.criteria_list[2]['errors'] = self.number_videoErrors
+        self.criteria_list[3]['errors'] = self.number_emptyContent
         self.formMainCard(file_index)
+        print(self.chapterDetails[3])
         file_index.close()
         readme.close()
         # file_index.write('</ul>\n</body>\n</html>')
@@ -419,7 +431,7 @@ class Doc:
             sFile = sFile.relative_to(*sFile.parts[:1])
             first_line = seq_txt[0]
             sequ_name = first_line.split('"')[1]
-            self.seqDetails_dict = {'name_seq': sequ_name, 'total_errors': 0}
+            self.seqDetails_dict = {'name_seq': sequ_name, 'total_errors': 0,'subsections':[]}
             readme.write('\t* [Subsection] {0} - [{1}]({1})  \n'.format(sequ_name, aux_sFile))
             self.tmp_name_equal = sequ_name
             '''
@@ -481,8 +493,8 @@ class Doc:
         # frame_izquierdo.write('</ul>\n')
         # file_index.write('</ul>\n')
         self.tmp_dictionary['sections'] = tmp_seqDetails_list
-        print(self.tmp_dictionary)
-        print('\n')
+        # print(self.tmp_dictionary)
+        # print('\n')
         pub_seq = dict((k, v) for k, v in pub_seq.items() if v)
         return pub_seq, all_seq
 
@@ -490,6 +502,7 @@ class Doc:
         # aux_sequ_name = self.eliminar_carateres_especiales(sequ_name).replace(' ','-')
         #print(uni)
         #print('\n\n')
+        tmp_subsectionsList = []
         pub_uni = OrderedDict()
         all_uni = OrderedDict()
         number_sectionErrors = 0
@@ -503,7 +516,10 @@ class Doc:
             first_line = uni_txt[0]
             u_name = first_line.split('"')[1]
             readme.write('\t\t* [Unit] {0} - [{1}]({1})\n'.format(u_name, aux_uFile))
+            self.tmp_subsectionsDict = {}
             aux_u_name = u_name
+            if (len(uni) > 1):
+                self.tmp_subsectionsDict = {'name_subseq': u_name, 'errors': 0}
             # aux_u_name = self.eliminar_carateres_especiales(u_name.replace(' ','-'))
             #print(uni_txt[0])
             '''
@@ -561,12 +577,14 @@ class Doc:
                     self.tmp_dictionary['total_errors'] += number_sectionErrors
                     self.number_emptyContent += 1
                     self.seqDetails_dict['total_errors'] += number_sectionErrors
+            tmp_subsectionsList.append(self.tmp_subsectionsDict)
             #print(prob_list)
             # print(u_name)
             pub_dict, all_dict = self.describeProb(prob_list, readme, file_index, aux_u_name.lower())
             pub_uni[u_name] = pub_dict
             all_uni['('+u[-9:-4]+')'+u_name] = (str(uFile), all_dict)
         pub_uni = dict((k, v) for k, v in pub_uni.items() if v)
+        self.seqDetails_dict['subsections'] = tmp_subsectionsList
         return pub_uni, all_uni
 
     def describeProb(self, prob_list, readme, file_index, name):
@@ -639,13 +657,16 @@ class Doc:
                     readme.write('\t\t\t* [{0}] {1} - [{2}]({2})\n'.format(pro[0], p_name, aux_pFile))
                     #readme.write('\t\t\t\t Weight: {0}, Max Attempts: {1}\n'.format(weight, max_att))
                 else:
-
-                    number_seqErrorsUrl = 0
                     
+                    number_seqErrorsUrl = 0
+                    number_subSeqErrorsUrl = 0
                     criterion_dictionary = self.checkUrls(file_adress)
                     if criterion_dictionary['urls']:
                         number_errorsUrl = self.getNumberErrors(criterion_dictionary)
                         number_seqErrorsUrl = number_errorsUrl
+                        if 'errors' in self.tmp_subsectionsDict.keys():
+                            number_subSeqErrorsUrl = number_errorsUrl
+                            self.tmp_subsectionsDict['errors'] += number_subSeqErrorsUrl
                         self.number_urlErrors += number_errorsUrl
                     
                     self.seqDetails_dict['total_errors'] +=  number_seqErrorsUrl
@@ -673,11 +694,16 @@ class Doc:
                 file_adress = self.path / pro[0] / pro_name
                 
                 number_seqErrorsVideo = 0
+                number_subSeqErrorsVideo = 0
                 
                 if not self.checkVideos(file_adress):
                     number_errorsVideo += 1
                     number_seqErrorsVideo += 1
+                    if 'errors' in self.tmp_subsectionsDict.keys():
+                        number_subSeqErrorsVideo += 1
+                        self.tmp_subsectionsDict['errors'] += number_subSeqErrorsVideo
                     self.number_videoErrors += 1
+                    self.tmp_subsectionsDict['errors'] += number_subSeqErrorsVideo
 
                 self.seqDetails_dict['total_errors'] += number_seqErrorsVideo
                 
@@ -859,15 +885,18 @@ class Doc:
                 readme.write('\t\t\t* [{0}]\(Draft\) {1} - [{2}]({2})\n'.format(pro[0], p_name, aux_pFile))
             else:
                 number_seqErrorsUrl = 0
-                
+                number_subSeqErrorsUrl = 0
                 criterion_dictionary = self.checkUrls(file_adress)
                 if criterion_dictionary['urls']:
                     number_errorsUrl = self.getNumberErrors(criterion_dictionary)
                     number_seqErrorsUrl = number_errorsUrl
+                    if 'errors' in self.tmp_subsectionsDict.keys():
+                        number_subSeqErrorsUrl = number_errorsUrl
+                        self.tmp_subsectionsDict['errors'] += number_subSeqErrorsUrl
                     self.number_urlErrors += number_errorsUrl
                 
                 self.seqDetails_dict['total_errors'] +=  number_seqErrorsUrl
-    
+                
                 readme.write('\t\t\t* [{0}]\(Draft\) - [{1}]({1})\n'.format(pro[0], aux_pFile))
                 '''
                 txt_prob = '%s<a class="btn btn-outline-dark border-0 col-auto" href="%s.html" data-toggle="button" aria-pressed="false" autocomplete="off">Page</a>\n'%(txt_prob, aux_u_name)
