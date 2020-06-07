@@ -4,24 +4,18 @@ from pathlib import Path
 from collections import defaultdict
 from collections import OrderedDict
 import re
-import json
 import sys
-import os
 import unicodedata
 import xml.etree.ElementTree as ET 
 from shutil import rmtree
 import os, fnmatch
 import pafy
-import shutil
-import httplib2 # Nueva
-import codecs
-import html # Nueva
+import httplib2 
+import html 
 
 
 class Doc:
     
-    # Pendiente documentar todo
-
     # Obtener curso
     def __makeCourse(self):
         """
@@ -215,6 +209,7 @@ class Doc:
             if 'incorrecto' in criterion['estado']:
                 url_errorsList.append(criterion['url'])
         return url_errorsList
+    
     # Metodo para obtener las url de cada archivo
     def getUrls(self, file_adress):
         list_stateUrls = []
@@ -302,27 +297,17 @@ class Doc:
             sys.exit("\033[91m ERROR: can't find directory {} \033[0m".format(start_path))
 
         ## variables  numericas
-        self.first_page = ''
-        self.num_chapts = 0
-        self.num_seq = 0
-        self.num_units = 0
-        self.num_pages = 0
-        self.num_drafts = 0
-        self.tmp_name_equal = ''
-        self.url_video = ''
-        self.type_content = 0
-        self.course_title = ''
-        self.num_id_seq = 0
         self.num_subHeading = 0
         self.num_subSectionHeading = 0
         self.num_sectionErrors = 0
-
-        # Variables nuevas
         self.number_urlErrors = 0
         self.number_sectionErrors = 1
         self.number_videoErrors = 0
         self.number_emptyContent = 0
-        self.chapter_name = ''
+
+        # Varibales str
+        self.url_video = ''
+        self.course_title = ''
 
         # Variables de Path
         self.path = Path(start_path)
@@ -342,13 +327,12 @@ class Doc:
 
         self.aux_draft_path = 'drafts'
         self.aux_draft_vert_path = 'vertical'
-        self.file_uno = ''
 
         ## lista de capitulos
         self.chapter_list = []
-        self.pathsHtml = []
 
-        self.criteria_list = []    
+        self.criteria_list = [] 
+
         ## Estructura de secciones y unidades
         self.draft_problems_struct = OrderedDict()
         self.public_problems_struct = OrderedDict()
@@ -374,21 +358,18 @@ class Doc:
         os.mkdir('%s/course-report'%self.path) # Crear directorio 'course-report'
         
         file_index = open(str(self.path)+'/course-report/index.html','w') # Crear archivo 'index.html'
-
-        readme = open(str(self.path)+'/README.md', 'w')
-        readme.write("###Course structure - [course/{0}](course/{0})\n".format(self.course_file.name))     
-        self.describeChapter(readme, file_index)
+   
         self.setConfigCourse()
+        self.describeChapter(file_index)
         self.criteria_list[0]['errors'] = self.number_sectionErrors
         self.criteria_list[1]['errors'] = self.number_urlErrors
         self.criteria_list[2]['errors'] = self.number_videoErrors
         self.criteria_list[3]['errors'] = self.number_emptyContent
         self.formMainCard(file_index)
         file_index.close()
-        readme.close()
 
     # Obtener menu principal
-    def describeChapter(self, readme, file_index):
+    def describeChapter(self, file_index):
  
         for c in self.chapter_list:
             self.tmp_dictionary = {}
@@ -406,12 +387,11 @@ class Doc:
                 if chap_name.lower() in ['espacio colaborativo','espacios colaborativo', 'collaborative space']:
                     self.number_sectionErrors = 0
 
-                readme.write('* [Section] {0} - [{1}]({1})\n'.format(chap_name, aux_cFile))
 
                 # eliminar el item inicial
                 seq_list = [l.split('"')[1] for l in chap_txt if "sequential" in l]
 
-                pub_seq_struct, all_seq_struct = self.describeSequen(seq_list, readme, file_index)
+                pub_seq_struct, all_seq_struct = self.describeSequen(seq_list, file_index)
                 self.chapterDetails.append(self.tmp_dictionary)
 
                 ### estructura publica
@@ -422,13 +402,12 @@ class Doc:
         self.public_problems_struct = dict((k, v) for k, v in self.public_problems_struct.items() if v)
 
 
-    def describeSequen(self, seq, readme, file_index):
+    def describeSequen(self, seq, file_index):
         pub_seq = OrderedDict()
         all_seq = OrderedDict()
         tmp_seqDetails_list = []
         for s in seq:
             self.seqDetails_dict  = {}
-            self.num_units = 0;
             unpublished = False
             s_name = s + '.xml'
             sFile = self.seq_path / s_name
@@ -438,12 +417,10 @@ class Doc:
             first_line = seq_txt[0]
             sequ_name = first_line.split('"')[1]
             self.seqDetails_dict = {'name_seq': sequ_name, 'errors': [], 'total_errors':0,'subsections':[]}
-            readme.write('\t* [Subsection] {0} - [{1}]({1})  \n'.format(sequ_name, aux_sFile))
-            self.tmp_name_equal = sequ_name
 
             if len(seq_txt) > 2:
                 unit_list = [l.split('"')[1] for l in seq_txt if "vertical" in l]
-                pub_dict, all_dict = self.describeUnit(unit_list, readme, file_index, sequ_name)
+                pub_dict, all_dict = self.describeUnit(unit_list, file_index, sequ_name)
                 pub_seq[sequ_name] = pub_dict
 
                 if s in self.draft_problems_struct.keys():
@@ -455,7 +432,7 @@ class Doc:
                             unpublished = True
                             self.draft_problems_struct[s].remove(u)
                     if self.draft_problems_struct[s]:
-                        all_dict2 = self.describeDraftUnit(self.draft_problems_struct[s], readme, file_index, sequ_name)
+                        all_dict2 = self.describeDraftUnit(self.draft_problems_struct[s], file_index, sequ_name)
                         for d in all_dict2:
                             all_dict[d] = all_dict2[d]
                 
@@ -468,7 +445,7 @@ class Doc:
                 if s not in self.draft_problems_struct.keys():
                     all_dict = OrderedDict()
                 else:
-                    all_dict = self.describeDraftUnit(self.draft_problems_struct[s], readme, file_index, sequ_name)
+                    all_dict = self.describeDraftUnit(self.draft_problems_struct[s], file_index, sequ_name)
                 all_seq['('+s_name[-9:-4]+')'+sequ_name] = (str(sFile), all_dict)
             
             tmp_seqDetails_list.append(self.seqDetails_dict)
@@ -477,7 +454,7 @@ class Doc:
         pub_seq = dict((k, v) for k, v in pub_seq.items() if v)
         return pub_seq, all_seq
 
-    def describeUnit(self, uni, readme, file_index, sequ_name):
+    def describeUnit(self, uni, file_index, sequ_name):
         tmp_subsectionsList = []
         pub_uni = OrderedDict()
         all_uni = OrderedDict()
@@ -491,7 +468,6 @@ class Doc:
             uFile = uFile.relative_to(*uFile.parts[:1])
             first_line = uni_txt[0]
             u_name = first_line.split('"')[1]
-            readme.write('\t\t* [Unit] {0} - [{1}]({1})\n'.format(u_name, aux_uFile))
             self.tmp_subsectionsDict = {}
             aux_u_name = u_name
             if (len(uni) > 1):
@@ -526,14 +502,14 @@ class Doc:
 
             tmp_subsectionsList.append(self.tmp_subsectionsDict)
         
-            pub_dict, all_dict = self.describeProb(prob_list, readme, file_index, aux_u_name.lower())
+            pub_dict, all_dict = self.describeProb(prob_list, file_index, aux_u_name.lower())
             pub_uni[u_name] = pub_dict
             all_uni['('+u[-9:-4]+')'+u_name] = (str(uFile), all_dict)
         pub_uni = dict((k, v) for k, v in pub_uni.items() if v)
         self.seqDetails_dict['subsections'] = tmp_subsectionsList
         return pub_uni, all_uni
 
-    def describeProb(self, prob_list, readme, file_index, name):
+    def describeProb(self, prob_list, file_index, name):
 
         pub_prob = OrderedDict()
         pro_list = []
@@ -577,8 +553,6 @@ class Doc:
                             pub_prob[p_name] = {'file':pro_name, 'weight':Dict['weight'], 'max_attempts':Dict['max_attempts']}
                         else:
                             pub_prob[p_name] = {'file':pro_name, 'weight':Dict['weight']}
-
-                    readme.write('\t\t\t* [{0}] {1} - [{2}]({2})\n'.format(pro[0], p_name, aux_pFile))
                 else:
                     
                     number_seqErrorsUrl = 0 # posiblemente borrar
@@ -603,9 +577,7 @@ class Doc:
                         self.number_urlErrors += number_errorsUrl
                     
                     self.seqDetails_dict['total_errors'] +=  number_seqErrorsUrl
-                    
-                    readme.write('\t\t\t* [{0}] - [{1}]({1})\n'.format(pro[0], aux_pFile))
-                
+                                
                 pro_list.append((str(pFile), pro[0]))
             elif pro[0] == 'video':
                 pro_name = pro[1]+'.xml'
@@ -647,7 +619,7 @@ class Doc:
         return pub_prob, pro_list
 
     # Obtener informacion de unidades
-    def describeDraftUnit(self, unit, readme, file_index, sequ_name):
+    def describeDraftUnit(self, unit, file_index, sequ_name):
 
         all_uni = OrderedDict()
         tmp_subsectionsList = []
@@ -663,15 +635,14 @@ class Doc:
             if (len(unit) > 1):
                 self.tmp_subsectionsDict = {'name_subseq': u_name, 'errors': []}
 
-            readme.write('\t\t* [Unit]\(Draft\) {0} - [{1}]({1})\n'.format(u_name, aux_uFile))
             tmp_subsectionsList.append(self.tmp_subsectionsDict)
-            prob_list = self.describeDraftProb(u[1:], readme, aux_u_name.lower())
+            prob_list = self.describeDraftProb(u[1:], aux_u_name.lower())
             all_uni['('+u[0][-9:-4]+')(draft)'+u_name] = (str(uFile), prob_list)
         self.seqDetails_dict['subsections'] = tmp_subsectionsList
         return all_uni
 
     
-    def describeDraftProb(self, probs, readme, aux_u_name):
+    def describeDraftProb(self, probs, aux_u_name):
         prob_list = []
         txt_prob = ''
         num_drafts_prob = 0
@@ -698,7 +669,7 @@ class Doc:
             p_name = fline.split('"')[1]
            
             if pro[0] == 'problem':
-                readme.write('\t\t\t* [{0}]\(Draft\) {1} - [{2}]({2})\n'.format(pro[0], p_name, aux_pFile))
+                pass
             else:
                 
                 number_seqErrorsUrl = 0
@@ -722,8 +693,6 @@ class Doc:
                     self.number_urlErrors += number_errorsUrl
                 
                 self.seqDetails_dict['total_errors'] +=  number_seqErrorsUrl
-                
-                readme.write('\t\t\t* [{0}]\(Draft\) - [{1}]({1})\n'.format(pro[0], aux_pFile))
                 
             prob_list.append((str(pFile), '(draft)'+pro[0]))
         if number_errorsUrl > 0:
