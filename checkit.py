@@ -14,6 +14,8 @@ import os, fnmatch
 import pafy
 import shutil
 import httplib2 # Nueva
+import codecs
+import html # Nueva
 
 
 class Doc:
@@ -34,7 +36,6 @@ class Doc:
                 chap_name = cline.split('"')[1]
                 self.chapter_list.append(chap_name)
     
-    
     def getCourseTitle(self):
         tree = ET.parse(str(self.course_file))
         root = tree.getroot()
@@ -48,8 +49,6 @@ class Doc:
                 criteria_dict = {'criteriaName':line.replace('\n',''), 'errors': 0}
                 self.criteria_list.append(criteria_dict)
         
-        
-    
     # Metodo para formar el card principal
     def formMainCard(self, file_index):
         file_index.write('<!DOCTYPE html>\n<html lang="en">\n<head>\n<title>%s</title>\n<meta charset="utf-8">\n'
@@ -125,16 +124,8 @@ class Doc:
                 aux_typeCard = '%s<span class="badge badge-pill badge-danger text-center">%d</span>\n'%(aux_typeCard, section['total_errors'])
             else:
                 file_index.write('<div class="card border-success mb-3">\n')
-                aux_typeCard = '%s<span class="badge badge-pill badge-success text-center">%d</span>\n'%(aux_typeCard, len(section['errors']))
+                aux_typeCard = '%s<span class="badge badge-pill badge-success text-center">%d</span>\n'%(aux_typeCard, section['total_errors'])
             
-            '''
-            file_index.write('<div class="card-header" id="subHeading%d">\n'
-                '<button class="btn btn-outline-light" data-toggle="collapse" data-target="#subcollapse%d" aria-expanded="true" aria-controls="subcollapse%d">\n'
-                    '<svg class="bi bi-plus-square-fill text-dark" width="1.25em" height="1.25em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">\n'
-                    '<path fill-rule="evenodd" d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm6.5 4a.5.5 0 0 0-1 0v3.5H4a.5.5 0 0 0 0 1h3.5V12a.5.5 0 0 0 1 0V8.5H12a.5.5 0 0 0 0-1H8.5V4z"/>\n'
-                    '</svg>\n</button>\n%s     %s</div>\n<div id="subcollapse%d" class="collapse hide" aria-labelledby="subHeading%d" data-parent="#accordion1">\n'
-                    '<div class="card-body">Aqui va el detalle de errores</div>\n</div>\n</div>\n'%(self.num_subHeading, self.num_subHeading, self.num_subHeading, section['name_seq'], aux_typeCard, self.num_subHeading, self.num_subHeading))    
-            '''
             if ((len(section['subsections'][0]) == 0) and (section['total_errors'] == 0)):
                 file_index.write('<div class="card-header" id="subHeading%d">\n'
                     '%s     %s</div>\n</div>\n'%(self.num_subHeading, section['name_seq'], aux_typeCard))
@@ -150,8 +141,6 @@ class Doc:
                 
                 self.formListErrors(file_index, section['errors'])
                 file_index.write('</div>\n</div>\n</div>\n')
-                
-            # self.formListErrors(file_index,section['errors'])
     
     def formDetailSubSections(self, file_index, subSection_list):
         for subsection in subSection_list:
@@ -163,14 +152,6 @@ class Doc:
             else:
                 file_index.write('<div class="card border-success mb-3">\n')
                 aux_typeCard = '%s<span class="badge badge-pill badge-success text-center">%d</span>\n'%(aux_typeCard, len(subsection['errors']))
-            '''
-            file_index.write('<div class="card-header" id="subHeading%d">\n'
-                '<button class="btn btn-outline-light" data-toggle="collapse" data-target="#subcollapse%d" aria-expanded="true" aria-controls="subcollapse%d">\n'
-                    '<svg class="bi bi-plus-square-fill text-dark" width="1.25em" height="1.25em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">\n'
-                    '<path fill-rule="evenodd" d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm6.5 4a.5.5 0 0 0-1 0v3.5H4a.5.5 0 0 0 0 1h3.5V12a.5.5 0 0 0 1 0V8.5H12a.5.5 0 0 0 0-1H8.5V4z"/>\n'
-                    '</svg>\n</button>\n%s     %s</div>\n<div id="subcollapse%d" class="collapse hide" aria-labelledby="subHeading%d" data-parent="#accordion1">\n'
-                    '<div class="card-body">Aqui va el detalle de errores</div>\n</div>\n</div>\n'%(self.num_subHeading, self.num_subHeading, self.num_subHeading, section['name_seq'], aux_typeCard, self.num_subHeading, self.num_subHeading))    
-            '''
             if len(subsection['errors']) == 0:
                 file_index.write('<div class="card-header" id="subSectionHeading%d">\n'
                     '%s     %s</div>\n</div>\n'%(self.num_subSectionHeading, subsection['name_subseq'], aux_typeCard))
@@ -198,6 +179,7 @@ class Doc:
                     file_index.write('<a class="list-group-item d-flex justify-content-between align-items-center list-group-item-action list-group-item-info active" id="list-%s-list" data-toggle="list" href="#list-%s" role="tab" aria-controls="%s">%s\n'
                         '<span class="badge badge-danger badge-pill">%d</span>\n</a>\n'%(nameError, nameError, nameError, error['errorName'], len(list_errors)))
                     txt_tabContent = '%s<div class="tab-pane fade show active" id="list-%s" role="tabpanel" aria-labelledby="list-%s-list">'%(txt_tabContent, nameError, nameError)
+                    num_errors+=1
                 else:
 
                     file_index.write('<a class="list-group-item d-flex justify-content-between align-items-center list-group-item-action list-group-item-info" id="list-%s-list" data-toggle="list" href="#list-%s" role="tab" aria-controls="%s">%s\n'
@@ -213,6 +195,7 @@ class Doc:
 
                 txt_tabContent = '%s%s\n</div>'%(txt_tabContent,txt_details)
             file_index.write('</div>\n</div>\n<div class="col-8">\n%s\n</div>\n</div>\n</div>\n'%txt_tabContent)
+    
     # Metodo para validar cada url de cada archivo
     def checkUrls(self, file_adress):
         dict_reportUrl = {'file': '','urls':self.getUrls(file_adress)}
@@ -234,11 +217,8 @@ class Doc:
         return url_errorsList
     # Metodo para obtener las url de cada archivo
     def getUrls(self, file_adress):
-
         list_stateUrls = []
         file_content = file_adress.open().readlines()
-
-        # Expresión regular que obtiene solo las urls
         url_pattern = re.compile(r'["]http([^"]*)')
 
         list_url = [] # Lista que almacenara las url
@@ -249,7 +229,6 @@ class Doc:
                 list_url.append(match.group().lstrip('"'))
         if list_url:
             list_stateUrls = self.validateUrlStatus(list_url)
-        
         return list_stateUrls
 
     # Metodo para validar cada url
@@ -257,8 +236,7 @@ class Doc:
         list_states = []
         for url in list_url:
             try:
-                # Diccionario donde se almacena la url y su estado
-                response, content = httplib2.Http(disable_ssl_certificate_validation=True).request(url)
+                response, content = httplib2.Http(disable_ssl_certificate_validation=True).request(html.unescape(url))
                 if response.status != 200:
                     list_states.append({'url' : url, 'estado' : 'incorrecto'})
                                     
@@ -288,19 +266,6 @@ class Doc:
         except:
             video_status = False
         return video_status
-    '''
-    def checkEmptyContent(self, file_adress):
-        tree = ET.parse(file_adress)
-        root = tree.getroot()
-
-        # Lista que obtiene la url de cada nodo hijo 
-        list_urlNames = [child.attrib.get('url_name') for child in root ]
-        
-        if not list_urlNames:
-            return False
-        
-        return True
-    '''
 
     # Obtener estructura del curso
     def __makeDraftStruct(self):
@@ -409,15 +374,6 @@ class Doc:
         os.mkdir('%s/course-report'%self.path) # Crear directorio 'course-report'
         
         file_index = open(str(self.path)+'/course-report/index.html','w') # Crear archivo 'index.html'
-        '''
-        file_index.write('<html>\n<head>\n<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>\n</head>\n'
-            '<style>\nimg{\ndisplay:inline-block;\nwidth: %s\n}\n'
-            'body{\nborder-bottom: 3px solid #CE7D35;\n}\n'
-            'h1{\nvertical-align:top;\ndisplay:inline-block;\ntext-align: center;\npadding-top: 20px;\nwidth: %s\n}\n</style>\n'
-            '<title>REPORTE %s</title>\n</head>\n<body>\n<div>\n'
-            '<img src="http://opencampus.utpl.edu.ec/static/themes/utpl_final/images/openCampus_logo.3c9532a0c56d.png">\n'
-            '<h1>%s\n</h1>\n</div>\n<ul>\n'%('15%;','70%;',self.course_title, self.course_title))
-        '''
 
         readme = open(str(self.path)+'/README.md', 'w')
         readme.write("###Course structure - [course/{0}](course/{0})\n".format(self.course_file.name))     
@@ -428,27 +384,14 @@ class Doc:
         self.criteria_list[2]['errors'] = self.number_videoErrors
         self.criteria_list[3]['errors'] = self.number_emptyContent
         self.formMainCard(file_index)
-        print(self.chapterDetails[7])
-        '''
-        print(self.chapterDetails[7]['sections'][0]['subsections'][0])
-        print(len(self.chapterDetails[7]['sections'][0]['subsections'][0]))
-        print('\n')
-        print(self.chapterDetails[7]['sections'][1]['subsections'][2])
-        print(len(self.chapterDetails[7]['sections'][1]['subsections'][0]))
-        '''
         file_index.close()
         readme.close()
-        # file_index.write('</ul>\n</body>\n</html>')
-        # file_index.close()
 
     # Obtener menu principal
     def describeChapter(self, readme, file_index):
-   
-        num_id = 0
-        # print(self.chapter_list)
+ 
         for c in self.chapter_list:
             self.tmp_dictionary = {}
-            # build path
             c += '.xml'
             cFile = self.chapter_path / c
             
@@ -465,53 +408,24 @@ class Doc:
 
                 readme.write('* [Section] {0} - [{1}]({1})\n'.format(chap_name, aux_cFile))
 
-                # Formar menu principal
-                num_id+=1
-                # file_index.write('<li>%s'%chap_name)
-                '''
-                frame_izquierdo.write('<div class="row">\n<li class="col-11 nav-item" id="principal"><a class="nav-link" '
-                    'href="#" role="button" data-toggle="collapse" data-target="#submenu%d" aria-haspopup="true" '
-                    'aria-expanded="false">%s</a>'%(num_id,chap_name))
-                '''
-                # Nombre del directorio
-                # namePath_html = '%s'%(self.eliminar_carateres_especiales(chap_name.replace(' ','-').lower()))
-                '''
-                if os.path.isdir('%s/course-html/content/%s'%(str(self.path), namePath_html)):
-                    self.num_chapts =+ 1
-                    namePath_html = '%s-%d'%(namePath_html,self.num_chapts)
-               
-                os.mkdir('%s/course-html/content/%s'%(str(self.path),namePath_html))
-                '''
-                
-                # namePath = self.eliminar_carateres_especiales(chap_name.replace(' ','-').lower())
-                
-                # self.pathsHtml.append(namePath_html)
-                #index.write('<section><h1> %s</h1></section>\n'%(chap_name))
-
                 # eliminar el item inicial
                 seq_list = [l.split('"')[1] for l in chap_txt if "sequential" in l]
 
-                pub_seq_struct, all_seq_struct = self.describeSequen(seq_list, readme, file_index, num_id)
+                pub_seq_struct, all_seq_struct = self.describeSequen(seq_list, readme, file_index)
                 self.chapterDetails.append(self.tmp_dictionary)
-                # file_index.write('</li>\n')
-                # frame_izquierdo.write('</li>\n<span class="pt-3 col-1 dropdown-toggle"></span>\n</div>\n')
 
                 ### estructura publica
                 self.public_problems_struct[chap_name] = pub_seq_struct
 
                 self.all_problems_struct['('+c[-9:-4]+')'+chap_name] = (str(cFile), all_seq_struct)
-            #print(self.pathsHtml)
-        
 
         self.public_problems_struct = dict((k, v) for k, v in self.public_problems_struct.items() if v)
 
 
-    def describeSequen(self, seq, readme, file_index, num_id):
+    def describeSequen(self, seq, readme, file_index):
         pub_seq = OrderedDict()
         all_seq = OrderedDict()
         tmp_seqDetails_list = []
-        # file_index.write('\n<ul>\n')
-        # frame_izquierdo.write('\n<ul class="collapse navbar-nav flex-column" id="submenu%d">\n'%num_id) 
         for s in seq:
             self.seqDetails_dict  = {}
             self.num_units = 0;
@@ -526,33 +440,10 @@ class Doc:
             self.seqDetails_dict = {'name_seq': sequ_name, 'errors': [], 'total_errors':0,'subsections':[]}
             readme.write('\t* [Subsection] {0} - [{1}]({1})  \n'.format(sequ_name, aux_sFile))
             self.tmp_name_equal = sequ_name
-            '''
-            if os.path.isdir('%s/course-html/content/%s/%s'%(str(self.path), path,sequ_name):
-                self.num_seq =+ 1
-                sequ_name = '%s-%d'%(sequ_name,self.num_seq)
-            os.mkdir('%s/course-html/content/%s/%s'%(str(self.path), path,sequ_name))
-            '''
 
             if len(seq_txt) > 2:
                 unit_list = [l.split('"')[1] for l in seq_txt if "vertical" in l]
-                
-                if (len(unit_list) > 1):
-                    self.num_id_seq +=1
-                    # file_index.write('<li>%s'%self.tmp_name_equal)
-                    '''
-                    frame_izquierdo.write('<div class="row">\n<li class="col-11 nav-item" id="principal2"><a class="nav-link" '
-                        'href="#" role="button" data-toggle="collapse" data-target="#menu-submenu%d" aria-haspopup="true" '
-                        'aria-expanded="false">%s</a></li>\n'
-                        '<span class="pt-3 col-1 dropdown-toggle"></span>\n</div>\n'%(self.num_id_seq, self.tmp_name_equal))
-                    
-                    frame_izquierdo.write('\n<ul class="collapse navbar-nav flex-column" id="menu-submenu%d">\n'%self.num_id_seq) 
-                    '''
-                    # file_index.write('\n<ul>\n')
-                    pub_dict, all_dict = self.describeUnit(unit_list, readme, file_index, sequ_name)
-                    # frame_izquierdo.write('</ul>\n')
-                    # file_index.write('</ul>\n')
-                else:
-                    pub_dict, all_dict = self.describeUnit(unit_list, readme, file_index, sequ_name)
+                pub_dict, all_dict = self.describeUnit(unit_list, readme, file_index, sequ_name)
                 pub_seq[sequ_name] = pub_dict
 
                 if s in self.draft_problems_struct.keys():
@@ -568,7 +459,6 @@ class Doc:
                         for d in all_dict2:
                             all_dict[d] = all_dict2[d]
                 
-
                 all_seq['('+s_name[-9:-4]+')'+sequ_name] = (str(sFile), all_dict)
 
                 if unpublished:
@@ -582,23 +472,17 @@ class Doc:
                 all_seq['('+s_name[-9:-4]+')'+sequ_name] = (str(sFile), all_dict)
             
             tmp_seqDetails_list.append(self.seqDetails_dict)
-        # frame_izquierdo.write('</ul>\n')
-        # file_index.write('</ul>\n')
+        
         self.tmp_dictionary['sections'] = tmp_seqDetails_list
-        # print(self.tmp_dictionary)
-        # print('\n')
         pub_seq = dict((k, v) for k, v in pub_seq.items() if v)
         return pub_seq, all_seq
 
     def describeUnit(self, uni, readme, file_index, sequ_name):
-        # aux_sequ_name = self.eliminar_carateres_especiales(sequ_name).replace(' ','-')
-        #print(uni)
-        #print('\n\n')
         tmp_subsectionsList = []
         pub_uni = OrderedDict()
         all_uni = OrderedDict()
         number_sectionErrors = 0
-        # direccion = ''
+
         for u in uni:
             u += '.xml'
             uFile = self.vert_path / u
@@ -612,42 +496,6 @@ class Doc:
             aux_u_name = u_name
             if (len(uni) > 1):
                 self.tmp_subsectionsDict = {'name_subseq': u_name, 'errors': []}
-            # aux_u_name = self.eliminar_carateres_especiales(u_name.replace(' ','-'))
-            #print(uni_txt[0])
-            '''
-            if (len(uni) > 1):
-                file_index.write('<li>%s</li>\n'%u_name)
-            else:
-                file_index.write('<li>%s</li>\n'%sequ_name)
-            '''
-            ''''
-            # Formar el submenu
-            if (len(uni) > 1):
-                if os.path.isdir('%s/course-html/content/%s/%s'%(str(self.path), path,u_name)):
-                    self.num_units+=1
-                    aux_u_name = '%s-%d'%(aux_u_name,self.num_units)
-                    os.mkdir('%s/course-html/content/%s/%s/%s'%(str(self.path), path, self.eliminar_carateres_especiales(sequ_name).replace(' ','-').lower()
-                        ,aux_u_name.lower()))
-                else:
-                    os.mkdir('%s/course-html/content/%s/%s/%s'%(str(self.path), path, self.eliminar_carateres_especiales(sequ_name).replace(' ','-').lower()
-                        , aux_u_name.lower()))
-                # frame_izquierdo.write('<li class="nav-item"><a class="nav-link" href="%s/%s/%s/%s.html" target="derecho">%s</a></li>\n'%(path,
-                    # aux_sequ_name.lower(),aux_u_name.lower(),aux_u_name.lower(),u_name))
-                # frame_derecho = open(str(self.path)+'/course-html/content/%s/%s/%s/%s.html'%(path,aux_sequ_name.lower(),aux_u_name.lower(),aux_u_name.lower()), 'w')
-                direccion = str(self.path)+'/course-html/content/%s/%s/%s'%(path,aux_sequ_name.lower(),aux_u_name.lower())
-                self.type_content = 1
-            else:
-                # frame_izquierdo.write('<li class="nav-item"><a class="nav-link" href="%s/%s/%s.html" target="derecho">%s</a></li>\n'%(path,aux_sequ_name.lower(),aux_u_name.lower(),sequ_name))
-                if(self.num_pages == 0):
-                    self.first_page = '%s%s/%s/%s.html'%(self.first_page,path,aux_sequ_name.lower(),aux_u_name.lower())
-                    self.num_pages+=1
-                # Crear los archivos.html en el directorio creado para cada section
-                # frame_derecho = open(str(self.path)+'/course-html/content/%s/%s/%s.html'%(path,aux_sequ_name.lower(),aux_u_name.lower()), 'w')
-                direccion = str(self.path)+'/course-html/content/%s/%s'%(path,aux_sequ_name.lower())
-                self.type_content = 0
-            #if(aux_u_name.lower() == 'encuesta de satisfacción'):
-                #print("Es una encuesta")
-            '''
             prob_list = []
             for l in uni_txt[1:]:
                 if '<problem ' in l:
@@ -659,9 +507,6 @@ class Doc:
                 elif '<html ' in l:
                     prob = l.split('"')[1]
                     prob_list.append(['html', prob])
-                #elif '<discussion ' in l:
-                #    prob = l.split('"')[1]
-                #    comp_list.append(['discussion', prob])
             
             if(u_name.lower() != 'encuesta de satisfacción'):
                 if not prob_list:
@@ -680,8 +525,7 @@ class Doc:
                         self.seqDetails_dict['errors'].append(criterio_dict)
 
             tmp_subsectionsList.append(self.tmp_subsectionsDict)
-            #print(prob_list)
-            # print(u_name)
+        
             pub_dict, all_dict = self.describeProb(prob_list, readme, file_index, aux_u_name.lower())
             pub_uni[u_name] = pub_dict
             all_uni['('+u[-9:-4]+')'+u_name] = (str(uFile), all_dict)
@@ -690,16 +534,7 @@ class Doc:
         return pub_uni, all_uni
 
     def describeProb(self, prob_list, readme, file_index, name):
-        '''
-        print(prob_list)
-        print(len(prob_list))
-        print('\n\n')
-        '''
-        """
-        Write component information into readme
-        Input:
-            [prob_list]: the list of problems to describe further
-        """
+
         pub_prob = OrderedDict()
         pro_list = []
 
@@ -711,23 +546,9 @@ class Doc:
         errors_urlList = []
         number_errorsVideo = 0
         error_videoList = []
-        # files_list = []
-        # txt_prob = ''
-        #file_idx_prob = open('%s/idx-%s.html'%(direccion,aux_u_name),'w')
-        #file_idx_prob.write('<html>\n<body>\n')
 
         for pro in prob_list:
-            if num_files > 0:
-                aux_u_name = '%s-%d'%(name,num_files)
-            # print('%s/%s.html'%(direccion,name))
-            # frame_derecho = open('%s/%s.html'%(direccion,aux_u_name),'w')
-            # files_list.append('%s/%s.html'%(direccion,aux_u_name))
-            num_files +=1
-            # Pendiente agregar condicion para ver si es un video o un html.
             if pro[0] == 'html': # Condicion para ver si el archivo es un html
-                # txt_prob = '%s<a class="btn btn-outline-dark border-0 col-auto" href="%s.html" data-toggle="button" aria-pressed="false" autocomplete="off">Page</a>\n'%(txt_prob, aux_u_name)
-                #'<a href="#" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">Primary link</a>'
-                #'data-toggle="button" aria-pressed="false" autocomplete="off"'
                 pro_name = pro[1]+'.xml'
                 pro_name_html = pro[1]+'.html' # obtener el arhivo html
                 
@@ -744,7 +565,6 @@ class Doc:
                 pFile = pFile.relative_to(*pFile.parts[:1])
                 fline = p_txt[0]
                 m = pat1.match(fline)
-                #print(m)
                 if m:
                     params = m.group(1)
                     m2 = pat2.findall(params)
@@ -757,15 +577,15 @@ class Doc:
                             pub_prob[p_name] = {'file':pro_name, 'weight':Dict['weight'], 'max_attempts':Dict['max_attempts']}
                         else:
                             pub_prob[p_name] = {'file':pro_name, 'weight':Dict['weight']}
-                    #print('\t\t\t* [{0}] {1} - [{2}]({2})\n'.format(pro[0], p_name, aux_pFile))
+
                     readme.write('\t\t\t* [{0}] {1} - [{2}]({2})\n'.format(pro[0], p_name, aux_pFile))
-                    #readme.write('\t\t\t\t Weight: {0}, Max Attempts: {1}\n'.format(weight, max_att))
                 else:
                     
                     number_seqErrorsUrl = 0 # posiblemente borrar
                     number_subSeqErrorsUrl = 0 # posiblemente borrar
                     list_seqUrlErrors = []
                     list_subSeqUrlErrors = []
+                
                     criterion_dictionary = self.checkUrls(file_adress)
                     if criterion_dictionary['urls']:
                         number_errorsUrl = self.getNumberErrors(criterion_dictionary) # posiblemente borrar
@@ -785,22 +605,9 @@ class Doc:
                     self.seqDetails_dict['total_errors'] +=  number_seqErrorsUrl
                     
                     readme.write('\t\t\t* [{0}] - [{1}]({1})\n'.format(pro[0], aux_pFile))
-                    #print(str(p_txt_html))
-                    '''
-                    for text in p_txt_html:
-                        for line in text.split('\n'):
-                            if 'http' not in line:
-                                line = line.replace('_','-')
-                            if self.type_content == 0:
-                                frame_derecho.write('%s\n'%line.replace('/static/','../../../static/'))
-                            else:
-                                frame_derecho.write('%s\n'%line.replace('/static/','../../../../static/'))
-                    frame_derecho.close()
-                    '''
                 
                 pro_list.append((str(pFile), pro[0]))
             elif pro[0] == 'video':
-                # print('Ok')
                 pro_name = pro[1]+'.xml'
                 pFile = self.path / pro[0] / pro_name
                 file_adress = self.path / pro[0] / pro_name
@@ -817,24 +624,13 @@ class Doc:
                     if 'errors' in self.tmp_subsectionsDict.keys():
                         criterio_dict = {'errorName': 'videos con error', 'url': error_videoList}
                         self.tmp_subsectionsDict['errors'].append(criterio_dict)
-                        #number_subSeqErrorsVideo += 1
-                        #self.tmp_subsectionsDict['errors'] += number_subSeqErrorsVideo
                     else:
                         criterio_dict = {'errorName': 'videos con error', 'url': error_videoList}
                         self.seqDetails_dict['errors'].append(criterio_dict)
                     self.number_videoErrors += 1
-                    # self.tmp_subsectionsDict['errors'] += number_subSeqErrorsVideo
                 
                 self.seqDetails_dict['total_errors'] += number_seqErrorsVideo
                 
-                '''
-                frame_derecho.write('<h4>VIDEO: %s</h4>\n<iframe class=»youtube-player» type=»text/html» width=»846″ height=»484″ src=%s ' 
-                    'frameborder=»0″></iframe>\n'%(self.obtener_titulo_video().upper(),video_title))
-                # frame_derecho.write('<iframe class=»youtube-player» type=»text/html» width=»846″ height=»484″ src=%s ' 
-                    # 'frameborder=»0″></iframe>\n'%video_title)
-                txt_prob = '%s<a class="btn btn-outline-dark border-0 col-auto" href="%s.html" data-toggle="button" aria-pressed="false" autocomplete="off">Video</a>\n'%(txt_prob, aux_u_name)
-                frame_derecho.close()
-                '''
             elif pro[0] == 'problem':
                 letters = list(range(97,123))
                 pro_name = pro[1]+'.xml'
@@ -842,94 +638,20 @@ class Doc:
                 txt_problem = pFile.open().readlines()
                 txt_problem = txt_problem[1:]
                 txt_problem = txt_problem[:-1]
-                type_question = ''
-                num_groups = 0
-                name = ''
-                '''
-                for line in txt_problem:
-                    if '<choicegroup' in line:
-                        type_question = 'radio'
-                        num_groups+=1
-                        name = 'name%d'%(num_groups)
-                    elif '<checkboxgroup' in line:
-                        type_question = 'checkbox'
-                    elif ('multiplechoiceresponse' not in line) and ('choicegroup' not in line) and ('checkboxgroup' not in line) and ('choiceresponse' not in line):
-                        if type_question == 'radio':
-                            line = line.replace('    <choice','&nbsp;&nbsp;&nbsp;&nbsp;<input type="%s" name="%s"'%(type_question,name))
-                        else:
-                            line = line.replace('    <choice','&nbsp;&nbsp;&nbsp;&nbsp;<label><input type="%s"'%(type_question))
-                        line = line.replace('correct','value')
-                        line = line.replace('</choice>','</label><br>')
-                        line = line.replace('</html>','</html><br>')
-                        line = line.replace('<p>','<br>\n<p>')
-                        frame_derecho.write(line.replace('/static/','../../../../static/'))
-                '''
-                '''
-                num_answers = 0
-                for line in txt_problem:
-                    if ('multiplechoiceresponse' not in line) and ('choicegroup' not in line) and ('checkboxgroup' not in line) and ('choiceresponse' not in line):
-                        line = line.replace('<p>','<br><p>')
-                        if '    <choice' in line:
-                            style_option = '%s.'%chr(letters[num_answers])
-                            style_option2 = '%s)'%chr(letters[num_answers])
-                            if((style_option in line) or (style_option2 in line)):
-                                line = line.replace(style_option,'')
-                                line = line.replace(style_option2,'')
-                            line = line.replace('    <choice','<p>&nbsp;&nbsp;&nbsp;&nbsp;%s) '%chr(letters[num_answers]))
-                            num_answers += 1
-                        else:
-                            num_answers = 0
-                        line = line.replace('correct="false">','')
-                        line = line.replace('correct="true">','')
-                        line = line.replace('</choice>','</p>')
-                        line = line.replace('</html>','</html><br>')
-                        frame_derecho.write(line.replace('/static/','../../../static/'))
-                    
-                txt_prob = '%s<a class="btn btn-outline-dark border-0 col-auto" href="%s.html" data-toggle="button" aria-pressed="false" autocomplete="off">Problem</a>\n'%(txt_prob, aux_u_name)
-                frame_derecho.close()
-                '''
-        '''
-        if aux_u_name.lower() == 'encuesta-de-satisfaccion':
-            frame_derecho = open('%s/%s.html'%(direccion,aux_u_name),'w')
-            frame_derecho.write('<iframe style="width:%s; height:%s;" '
-                'src="https://docs.google.com/forms/d/e/1FAIpQLSeyvQFO-e-VDuuL0TMFTYrIwdVr73UyZ7IGGdgMMXaMYITo9g/viewform"></iframe>'%('100%', '100%'))
-            frame_derecho.close()
-        '''
-        '''
-        for name_file in files_list:
-            file = open(name_file,'r')
-            file_lines = file.readlines()
-            txt_file = ''
-            for line in file_lines:
-                txt_file += line
-            file = open(name_file,'w')
-            file.write('<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" '
-                'integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">\n'
-                '<style type="text/css">\n.botones{\nborder-radius: 23px;\n}\n</style>\n'
-                '<div class ="container">\n<div class="row justify-content-center">\n'
-                '<div class="btn-group btn-group-lg col-6 p-0 my-4 border border-dark botones" role="group" aria-label="Toolbar with button groups">\n'
-                '%s</div><br><br>\n</div>\n%s'
-                '<script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>\n'
-                '<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>\n'
-                '<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>'%(txt_prob, txt_file))
-            file.close()
-        '''
-        
+                
         if number_errorsUrl > 0:
             self.tmp_dictionary['total_errors'] += number_errorsUrl
         if number_errorsVideo > 0:
             self.tmp_dictionary['total_errors'] += number_errorsVideo
         
-        # self.reescribir_archivos(files_list, txt_prob)
         return pub_prob, pro_list
 
     # Obtener informacion de unidades
     def describeDraftUnit(self, unit, readme, file_index, sequ_name):
-        # aux_sequ_name = self.eliminar_carateres_especiales(sequ_name).replace(' ','-')
+
         all_uni = OrderedDict()
         tmp_subsectionsList = []
-        # files_list = []
-        # direccion = ''
+
         for u in unit:
             uFile = Path(u[0])
             aux_uFile = u[0].split('/')
@@ -940,55 +662,23 @@ class Doc:
             aux_u_name = u_name
             if (len(unit) > 1):
                 self.tmp_subsectionsDict = {'name_subseq': u_name, 'errors': []}
-            # aux_u_name = self.eliminar_carateres_especiales(u_name.replace(' ','-'))
-            '''
-            if os.path.isdir('%s/course-html/content/%s/%s/%s'%(str(self.path), path, self.eliminar_carateres_especiales(sequ_name).replace(' ','-').lower()
-                ,aux_u_name.lower())):
-                self.num_drafts+=1
-                aux_u_name = '%s-%d'%(aux_u_name,self.num_drafts)
-            
-            os.mkdir('%s/course-html/content/%s/%s/%s'%(str(self.path), path, self.eliminar_carateres_especiales(sequ_name).replace(' ','-').lower()
-                , aux_u_name.lower()))
-        
-            frame_izquierdo.write('<li class="nav-item"><a class="nav-link" href="%s/%s/%s/%s.html" target="derecho">%s</a></li>\n'%(path,aux_sequ_name.lower(),
-                aux_u_name.lower(),aux_u_name.lower(),u_name))
-            '''
 
-            # direccion = str(self.path)+'/course-html/content/%s/%s/%s'%(path,aux_sequ_name.lower(),aux_u_name.lower())
-            # frame_derecho = open(str(self.path)+'/course-html/content/%s/%s/%s/%s.html'%(path,aux_sequ_name.lower(),aux_u_name.lower(),aux_u_name.lower()), 'w')
-            # files_list.append(str(self.path)+'/course-html/content/%s/%s/%s/%s.html'%(path,aux_sequ_name.lower(),aux_u_name.lower(),aux_u_name.lower()))
-            # files_list.append(str(self.path)+'/course-html/content/%s/%s/%s/%s.html'%(path,aux_sequ_name.lower(),aux_u_name.lower(),aux_u_name.lower()))
-            # file_index.write('<li>%s</li>\n'%u_name)
             readme.write('\t\t* [Unit]\(Draft\) {0} - [{1}]({1})\n'.format(u_name, aux_uFile))
             tmp_subsectionsList.append(self.tmp_subsectionsDict)
             prob_list = self.describeDraftProb(u[1:], readme, aux_u_name.lower())
-            # frame_derecho.close()
             all_uni['('+u[0][-9:-4]+')(draft)'+u_name] = (str(uFile), prob_list)
         self.seqDetails_dict['subsections'] = tmp_subsectionsList
         return all_uni
 
     
     def describeDraftProb(self, probs, readme, aux_u_name):
-        # print(aux_u_name)
         prob_list = []
-        # print(probs)
-        # print('\n\n')
         txt_prob = ''
-        # files_list = []
         num_drafts_prob = 0
         number_errorsUrl = 0
         errors_urlList = []
-        #print(probs)
-        #print(files_list)
-        #print('\n\n')
         tmp_aux_u_name = aux_u_name
         for pro in probs:
-            if num_drafts_prob > 0:
-                aux_u_name = '%s-%d'%(tmp_aux_u_name,num_drafts_prob)
-            num_drafts_prob+=1
-            # frame_derecho = open('%s/%s.html'%(direccion,aux_u_name),'w')
-            # files_list.append('%s/%s.html'%(direccion,aux_u_name))
-            #txt_prob = '%s<a class="btn btn-outline-dark border-0 col-4" href="%s.html" data-toggle="button" aria-pressed="false" autocomplete="off">Page</a>\n'%(txt_prob, aux_u_name)
             pro_name = pro[1]+'.xml'
             pro_name_html = pro[1]+'.html'
             pFile = self.draft_path / pro[0] / pro_name
@@ -1034,17 +724,10 @@ class Doc:
                 self.seqDetails_dict['total_errors'] +=  number_seqErrorsUrl
                 
                 readme.write('\t\t\t* [{0}]\(Draft\) - [{1}]({1})\n'.format(pro[0], aux_pFile))
-                '''
-                txt_prob = '%s<a class="btn btn-outline-dark border-0 col-auto" href="%s.html" data-toggle="button" aria-pressed="false" autocomplete="off">Page</a>\n'%(txt_prob, aux_u_name)
-                for text in p_txt_html:
-                    for line in text.split('\n'):
-                        frame_derecho.write('%s\n'%line.replace('/static/','../../../../static/'))
-                '''
-            # frame_derecho.close()
+                
             prob_list.append((str(pFile), '(draft)'+pro[0]))
         if number_errorsUrl > 0:
             self.tmp_dictionary['total_errors'] += self.tmp_dictionary['total_errors'] + number_errorsUrl
-        # self.reescribir_archivos(files_list, txt_prob)
         return prob_list
 
 
