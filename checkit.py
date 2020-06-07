@@ -117,6 +117,7 @@ class Doc:
     
     def formDetailSections(self, file_index, section_list):
         for section in section_list:
+            self.num_sectionErrors = 0
             self.num_subHeading += 1
             aux_typeCard = ''
             if section['total_errors'] > 0:
@@ -124,15 +125,94 @@ class Doc:
                 aux_typeCard = '%s<span class="badge badge-pill badge-danger text-center">%d</span>\n'%(aux_typeCard, section['total_errors'])
             else:
                 file_index.write('<div class="card border-success mb-3">\n')
-                aux_typeCard = '%s<span class="badge badge-pill badge-success text-center">%d</span>\n'%(aux_typeCard, section['total_errors'])
+                aux_typeCard = '%s<span class="badge badge-pill badge-success text-center">%d</span>\n'%(aux_typeCard, len(section['errors']))
             
+            '''
             file_index.write('<div class="card-header" id="subHeading%d">\n'
                 '<button class="btn btn-outline-light" data-toggle="collapse" data-target="#subcollapse%d" aria-expanded="true" aria-controls="subcollapse%d">\n'
                     '<svg class="bi bi-plus-square-fill text-dark" width="1.25em" height="1.25em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">\n'
                     '<path fill-rule="evenodd" d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm6.5 4a.5.5 0 0 0-1 0v3.5H4a.5.5 0 0 0 0 1h3.5V12a.5.5 0 0 0 1 0V8.5H12a.5.5 0 0 0 0-1H8.5V4z"/>\n'
                     '</svg>\n</button>\n%s     %s</div>\n<div id="subcollapse%d" class="collapse hide" aria-labelledby="subHeading%d" data-parent="#accordion1">\n'
                     '<div class="card-body">Aqui va el detalle de errores</div>\n</div>\n</div>\n'%(self.num_subHeading, self.num_subHeading, self.num_subHeading, section['name_seq'], aux_typeCard, self.num_subHeading, self.num_subHeading))    
+            '''
+            if ((len(section['subsections'][0]) == 0) and (section['total_errors'] == 0)):
+                file_index.write('<div class="card-header" id="subHeading%d">\n'
+                    '%s     %s</div>\n</div>\n'%(self.num_subHeading, section['name_seq'], aux_typeCard))
+            else:
+                file_index.write('<div class="card-header" id="subHeading%d">\n'
+                    '<button class="btn btn-outline-light" data-toggle="collapse" data-target="#subcollapse%d" aria-expanded="true" aria-controls="subcollapse%d">\n'
+                        '<svg class="bi bi-plus-square-fill text-dark" width="1.25em" height="1.25em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">\n'
+                        '<path fill-rule="evenodd" d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm6.5 4a.5.5 0 0 0-1 0v3.5H4a.5.5 0 0 0 0 1h3.5V12a.5.5 0 0 0 1 0V8.5H12a.5.5 0 0 0 0-1H8.5V4z"/>\n'
+                        '</svg>\n</button>\n%s     %s</div>\n<div id="subcollapse%d" class="collapse hide" aria-labelledby="subHeading%d" data-parent="#accordion1">\n'
+                        '<div class="card-body">\n'%(self.num_subHeading, self.num_subHeading, self.num_subHeading, section['name_seq'], aux_typeCard, self.num_subHeading, self.num_subHeading))
+                if len(section['subsections'][0]) != 0:
+                    self.formDetailSubSections(file_index, section['subsections'])
+                
+                self.formListErrors(file_index, section['errors'])
+                file_index.write('</div>\n</div>\n</div>\n')
+                
+            # self.formListErrors(file_index,section['errors'])
     
+    def formDetailSubSections(self, file_index, subSection_list):
+        for subsection in subSection_list:
+            self.num_subSectionHeading += 1
+            aux_typeCard = ''
+            if len(subsection['errors']) > 0:
+                file_index.write('<div class="card border-danger mb-3">\n')
+                aux_typeCard = '%s<span class="badge badge-pill badge-danger text-center">%d</span>\n'%(aux_typeCard, len(subsection['errors']))
+            else:
+                file_index.write('<div class="card border-success mb-3">\n')
+                aux_typeCard = '%s<span class="badge badge-pill badge-success text-center">%d</span>\n'%(aux_typeCard, len(subsection['errors']))
+            '''
+            file_index.write('<div class="card-header" id="subHeading%d">\n'
+                '<button class="btn btn-outline-light" data-toggle="collapse" data-target="#subcollapse%d" aria-expanded="true" aria-controls="subcollapse%d">\n'
+                    '<svg class="bi bi-plus-square-fill text-dark" width="1.25em" height="1.25em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">\n'
+                    '<path fill-rule="evenodd" d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm6.5 4a.5.5 0 0 0-1 0v3.5H4a.5.5 0 0 0 0 1h3.5V12a.5.5 0 0 0 1 0V8.5H12a.5.5 0 0 0 0-1H8.5V4z"/>\n'
+                    '</svg>\n</button>\n%s     %s</div>\n<div id="subcollapse%d" class="collapse hide" aria-labelledby="subHeading%d" data-parent="#accordion1">\n'
+                    '<div class="card-body">Aqui va el detalle de errores</div>\n</div>\n</div>\n'%(self.num_subHeading, self.num_subHeading, self.num_subHeading, section['name_seq'], aux_typeCard, self.num_subHeading, self.num_subHeading))    
+            '''
+            if len(subsection['errors']) == 0:
+                file_index.write('<div class="card-header" id="subSectionHeading%d">\n'
+                    '%s     %s</div>\n</div>\n'%(self.num_subSectionHeading, subsection['name_subseq'], aux_typeCard))
+            else:
+                file_index.write('<div class="card-header" id="subSectionHeading%d">\n'
+                    '<button class="btn btn-outline-light" data-toggle="collapse" data-target="#subSectioncollapse%d" aria-expanded="true" aria-controls="subSectioncollapse%d">\n'
+                        '<svg class="bi bi-plus-square-fill text-dark" width="1.25em" height="1.25em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">\n'
+                        '<path fill-rule="evenodd" d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm6.5 4a.5.5 0 0 0-1 0v3.5H4a.5.5 0 0 0 0 1h3.5V12a.5.5 0 0 0 1 0V8.5H12a.5.5 0 0 0 0-1H8.5V4z"/>\n'
+                        '</svg>\n</button>\n%s     %s</div>\n<div id="subSectioncollapse%d" class="collapse hide" aria-labelledby="subSectionHeading%d" data-parent="#accordion1">\n'
+                        '<div class="card-body">\n'%(self.num_subSectionHeading, self.num_subSectionHeading, self.num_subSectionHeading, subsection['name_subseq'], aux_typeCard, self.num_subSectionHeading, self.num_subSectionHeading))
+                self.formListErrors(file_index, subsection['errors'])
+                file_index.write('</div>\n</div>\n</div>\n')
+            
+    
+    def formListErrors(self,file_index, list_errors):
+        if list_errors:
+            self.num_sectionErrors += 1
+            file_index.write('<div class="row">\n<div class="col-4">\n<div class="list-group" id="list-tab" role="tablist">\n')
+            txt_tabContent = '<div class="tab-content" id="nav-tabContent">\n'
+            num_errors = 0
+            for error in list_errors:
+                nameError = error['errorName'].split(' ')[0]
+                txt_details = ''
+                if num_errors == 0:
+                    file_index.write('<a class="list-group-item d-flex justify-content-between align-items-center list-group-item-action list-group-item-info active" id="list-%s-list" data-toggle="list" href="#list-%s" role="tab" aria-controls="%s">%s\n'
+                        '<span class="badge badge-danger badge-pill">%d</span>\n</a>\n'%(nameError, nameError, nameError, error['errorName'], len(list_errors)))
+                    txt_tabContent = '%s<div class="tab-pane fade show active" id="list-%s" role="tabpanel" aria-labelledby="list-%s-list">'%(txt_tabContent, nameError, nameError)
+                else:
+
+                    file_index.write('<a class="list-group-item d-flex justify-content-between align-items-center list-group-item-action list-group-item-info" id="list-%s-list" data-toggle="list" href="#list-%s" role="tab" aria-controls="%s">%s\n'
+                        ' <span class="badge badge-danger badge-pill">%d</span>\n</a>\n'%(nameError, nameError, nameError, error['errorName'], len(list_errors)))
+                    txt_tabContent = '%s<div class="tab-pane fade" id="list-%s" role="tabpanel" aria-labelledby="list-%s-list">'%(txt_tabContent, nameError, nameError)
+                
+                if error['errorName'] == 'contenido vacio':
+                    txt_details = 'Solo se ha creado la sección pero no se ha ingresado contenido'
+                
+                elif error['errorName'] == 'url con error' or error['errorName'] == 'videos con error':
+                    for url in error['url']:
+                        txt_details = '%s<li>%s\n'%(txt_details, url)
+
+                txt_tabContent = '%s%s\n</div>'%(txt_tabContent,txt_details)
+            file_index.write('</div>\n</div>\n<div class="col-8">\n%s\n</div>\n</div>\n</div>\n'%txt_tabContent)
     # Metodo para validar cada url de cada archivo
     def checkUrls(self, file_adress):
         dict_reportUrl = {'file': '','urls':self.getUrls(file_adress)}
@@ -146,6 +226,12 @@ class Doc:
                 num_errors += 1
         return num_errors
     
+    def getErrorsUrl(self, criterion_dictionary):
+        url_errorsList = [] 
+        for criterion in criterion_dictionary['urls']:
+            if 'incorrecto' in criterion['estado']:
+                url_errorsList.append(criterion['url'])
+        return url_errorsList
     # Metodo para obtener las url de cada archivo
     def getUrls(self, file_adress):
 
@@ -172,14 +258,10 @@ class Doc:
         for url in list_url:
             try:
                 # Diccionario donde se almacena la url y su estado
-                dict_urlState = {'url' : url, 'estado' : ''}
-
                 response, content = httplib2.Http(disable_ssl_certificate_validation=True).request(url)
-                if response.status == 200:
-                    dict_urlState['estado'] = 'correcto'
-                else:
-                    dict_urlState['estado'] = 'incorrecto'
-                list_states.append(dict_urlState)
+                if response.status != 200:
+                    list_states.append({'url' : url, 'estado' : 'incorrecto'})
+                                    
             except httplib2.HttpLib2Error as err:
                 pass
             
@@ -192,9 +274,10 @@ class Doc:
         video_url = ''
         if 'youtube_id_1_0' in root.attrib:
             video_url = 'https://www.youtube.com/watch?v=%s'%(root.attrib['youtube_id_1_0'])
+            self.url_video = video_url
         
         return self.getVideoStatus(video_url)
-    
+
     # Metodo que permite verificar si el video esta disponible
     def getVideoStatus(self, video_url):
         video_status = True
@@ -266,6 +349,8 @@ class Doc:
         self.course_title = ''
         self.num_id_seq = 0
         self.num_subHeading = 0
+        self.num_subSectionHeading = 0
+        self.num_sectionErrors = 0
 
         # Variables nuevas
         self.number_urlErrors = 0
@@ -343,7 +428,14 @@ class Doc:
         self.criteria_list[2]['errors'] = self.number_videoErrors
         self.criteria_list[3]['errors'] = self.number_emptyContent
         self.formMainCard(file_index)
-        print(self.chapterDetails[3])
+        print(self.chapterDetails[7])
+        '''
+        print(self.chapterDetails[7]['sections'][0]['subsections'][0])
+        print(len(self.chapterDetails[7]['sections'][0]['subsections'][0]))
+        print('\n')
+        print(self.chapterDetails[7]['sections'][1]['subsections'][2])
+        print(len(self.chapterDetails[7]['sections'][1]['subsections'][0]))
+        '''
         file_index.close()
         readme.close()
         # file_index.write('</ul>\n</body>\n</html>')
@@ -431,7 +523,7 @@ class Doc:
             sFile = sFile.relative_to(*sFile.parts[:1])
             first_line = seq_txt[0]
             sequ_name = first_line.split('"')[1]
-            self.seqDetails_dict = {'name_seq': sequ_name, 'total_errors': 0,'subsections':[]}
+            self.seqDetails_dict = {'name_seq': sequ_name, 'errors': [], 'total_errors':0,'subsections':[]}
             readme.write('\t* [Subsection] {0} - [{1}]({1})  \n'.format(sequ_name, aux_sFile))
             self.tmp_name_equal = sequ_name
             '''
@@ -519,7 +611,7 @@ class Doc:
             self.tmp_subsectionsDict = {}
             aux_u_name = u_name
             if (len(uni) > 1):
-                self.tmp_subsectionsDict = {'name_subseq': u_name, 'errors': 0}
+                self.tmp_subsectionsDict = {'name_subseq': u_name, 'errors': []}
             # aux_u_name = self.eliminar_carateres_especiales(u_name.replace(' ','-'))
             #print(uni_txt[0])
             '''
@@ -577,6 +669,16 @@ class Doc:
                     self.tmp_dictionary['total_errors'] += number_sectionErrors
                     self.number_emptyContent += 1
                     self.seqDetails_dict['total_errors'] += number_sectionErrors
+                    # Para validar contenido vacio de subsecctionaes
+                    if 'errors' in self.tmp_subsectionsDict.keys():
+                        number_subSeqErrorsUrl = number_errorsUrl # Posiblemente borrar
+                        list_subSeqUrlErrors = errors_urlList
+                        criterio_dict = {'errorName': 'contenido vacio', 'subSeqName': u_name}
+                        self.tmp_subsectionsDict['errors'].append(criterio_dict)
+                    else:
+                        criterio_dict = {'errorName': 'contenido vacio', 'status': True}
+                        self.seqDetails_dict['errors'].append(criterio_dict)
+
             tmp_subsectionsList.append(self.tmp_subsectionsDict)
             #print(prob_list)
             # print(u_name)
@@ -606,7 +708,9 @@ class Doc:
         num_files = 0
         aux_u_name = name
         number_errorsUrl = 0
+        errors_urlList = []
         number_errorsVideo = 0
+        error_videoList = []
         # files_list = []
         # txt_prob = ''
         #file_idx_prob = open('%s/idx-%s.html'%(direccion,aux_u_name),'w')
@@ -658,20 +762,28 @@ class Doc:
                     #readme.write('\t\t\t\t Weight: {0}, Max Attempts: {1}\n'.format(weight, max_att))
                 else:
                     
-                    number_seqErrorsUrl = 0
-                    number_subSeqErrorsUrl = 0
+                    number_seqErrorsUrl = 0 # posiblemente borrar
+                    number_subSeqErrorsUrl = 0 # posiblemente borrar
+                    list_seqUrlErrors = []
+                    list_subSeqUrlErrors = []
                     criterion_dictionary = self.checkUrls(file_adress)
                     if criterion_dictionary['urls']:
-                        number_errorsUrl = self.getNumberErrors(criterion_dictionary)
-                        number_seqErrorsUrl = number_errorsUrl
+                        number_errorsUrl = self.getNumberErrors(criterion_dictionary) # posiblemente borrar
+                        errors_urlList = self.getErrorsUrl(criterion_dictionary)
+                        number_seqErrorsUrl = number_errorsUrl # posiblemente borrar
+                        list_seqUrlErrors = errors_urlList
                         if 'errors' in self.tmp_subsectionsDict.keys():
-                            number_subSeqErrorsUrl = number_errorsUrl
-                            self.tmp_subsectionsDict['errors'] += number_subSeqErrorsUrl
+                            number_subSeqErrorsUrl = number_errorsUrl # Posiblemente borrar
+                            list_subSeqUrlErrors = errors_urlList
+                            criterio_dict = {'errorName': 'url con error', 'url':list_subSeqUrlErrors}
+                            self.tmp_subsectionsDict['errors'].append(criterio_dict)
+                        else:
+                            criterio_dict = {'errorName': 'url con error', 'url': list_seqUrlErrors}
+                            self.seqDetails_dict['errors'].append(criterio_dict)
                         self.number_urlErrors += number_errorsUrl
                     
                     self.seqDetails_dict['total_errors'] +=  number_seqErrorsUrl
                     
-
                     readme.write('\t\t\t* [{0}] - [{1}]({1})\n'.format(pro[0], aux_pFile))
                     #print(str(p_txt_html))
                     '''
@@ -695,16 +807,24 @@ class Doc:
                 
                 number_seqErrorsVideo = 0
                 number_subSeqErrorsVideo = 0
+                list_seqVideoErrors = []
+                list_subSeqVideoErrors = []
                 
                 if not self.checkVideos(file_adress):
                     number_errorsVideo += 1
                     number_seqErrorsVideo += 1
+                    error_videoList.append(self.url_video)
                     if 'errors' in self.tmp_subsectionsDict.keys():
-                        number_subSeqErrorsVideo += 1
-                        self.tmp_subsectionsDict['errors'] += number_subSeqErrorsVideo
+                        criterio_dict = {'errorName': 'videos con error', 'url': error_videoList}
+                        self.tmp_subsectionsDict['errors'].append(criterio_dict)
+                        #number_subSeqErrorsVideo += 1
+                        #self.tmp_subsectionsDict['errors'] += number_subSeqErrorsVideo
+                    else:
+                        criterio_dict = {'errorName': 'videos con error', 'url': error_videoList}
+                        self.seqDetails_dict['errors'].append(criterio_dict)
                     self.number_videoErrors += 1
-                    self.tmp_subsectionsDict['errors'] += number_subSeqErrorsVideo
-
+                    # self.tmp_subsectionsDict['errors'] += number_subSeqErrorsVideo
+                
                 self.seqDetails_dict['total_errors'] += number_seqErrorsVideo
                 
                 '''
@@ -807,6 +927,7 @@ class Doc:
     def describeDraftUnit(self, unit, readme, file_index, sequ_name):
         # aux_sequ_name = self.eliminar_carateres_especiales(sequ_name).replace(' ','-')
         all_uni = OrderedDict()
+        tmp_subsectionsList = []
         # files_list = []
         # direccion = ''
         for u in unit:
@@ -817,6 +938,8 @@ class Doc:
             uFile = uFile.relative_to(*uFile.parts[:1])
             u_name = first_line.split('"')[1]
             aux_u_name = u_name
+            if (len(unit) > 1):
+                self.tmp_subsectionsDict = {'name_subseq': u_name, 'errors': []}
             # aux_u_name = self.eliminar_carateres_especiales(u_name.replace(' ','-'))
             '''
             if os.path.isdir('%s/course-html/content/%s/%s/%s'%(str(self.path), path, self.eliminar_carateres_especiales(sequ_name).replace(' ','-').lower()
@@ -837,9 +960,11 @@ class Doc:
             # files_list.append(str(self.path)+'/course-html/content/%s/%s/%s/%s.html'%(path,aux_sequ_name.lower(),aux_u_name.lower(),aux_u_name.lower()))
             # file_index.write('<li>%s</li>\n'%u_name)
             readme.write('\t\t* [Unit]\(Draft\) {0} - [{1}]({1})\n'.format(u_name, aux_uFile))
+            tmp_subsectionsList.append(self.tmp_subsectionsDict)
             prob_list = self.describeDraftProb(u[1:], readme, aux_u_name.lower())
             # frame_derecho.close()
             all_uni['('+u[0][-9:-4]+')(draft)'+u_name] = (str(uFile), prob_list)
+        self.seqDetails_dict['subsections'] = tmp_subsectionsList
         return all_uni
 
     
@@ -852,6 +977,7 @@ class Doc:
         # files_list = []
         num_drafts_prob = 0
         number_errorsUrl = 0
+        errors_urlList = []
         #print(probs)
         #print(files_list)
         #print('\n\n')
@@ -884,15 +1010,25 @@ class Doc:
             if pro[0] == 'problem':
                 readme.write('\t\t\t* [{0}]\(Draft\) {1} - [{2}]({2})\n'.format(pro[0], p_name, aux_pFile))
             else:
+                
                 number_seqErrorsUrl = 0
                 number_subSeqErrorsUrl = 0
+                list_seqUrlErrors = []
+                list_subSeqUrlErrors = []
                 criterion_dictionary = self.checkUrls(file_adress)
                 if criterion_dictionary['urls']:
                     number_errorsUrl = self.getNumberErrors(criterion_dictionary)
+                    errors_urlList = self.getErrorsUrl(criterion_dictionary)
                     number_seqErrorsUrl = number_errorsUrl
+                    list_seqUrlErrors = errors_urlList
                     if 'errors' in self.tmp_subsectionsDict.keys():
-                        number_subSeqErrorsUrl = number_errorsUrl
-                        self.tmp_subsectionsDict['errors'] += number_subSeqErrorsUrl
+                        number_subSeqErrorsUrl = number_errorsUrl # Posiblemente borrar
+                        list_subSeqUrlErrors = errors_urlList
+                        criterio_dict = {'errorName': 'url con error', 'url':list_subSeqUrlErrors}
+                        self.tmp_subsectionsDict['errors'].append(criterio_dict)
+                    else:
+                        criterio_dict = {'errorName': 'url con error', 'url': list_seqUrlErrors}
+                        self.seqDetails_dict['errors'].append(criterio_dict)
                     self.number_urlErrors += number_errorsUrl
                 
                 self.seqDetails_dict['total_errors'] +=  number_seqErrorsUrl
