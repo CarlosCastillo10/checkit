@@ -191,8 +191,11 @@ class Doc:
             file_index.write('</div>\n</div>\n<div class="col-8">\n%s\n</div>\n</div>\n</div>\n'%txt_tabContent)
     
     # Metodo para validar cada url de cada archivo
-    def checkUrls(self, file_adress):
+    def checkUrls(self, file_adress, name):
         dict_reportUrl = {'file': '','urls':self.getUrls(file_adress)}
+        for x in dict_reportUrl['urls']:
+            if '.pdf' in x['url']:
+                print('%s - %s'%(url, name))
         return dict_reportUrl
 
     # Metodo para obtener el numero de errores de cada criterio
@@ -366,7 +369,7 @@ class Doc:
         self.criteria_list[2]['errors'] = self.number_videoErrors
         self.criteria_list[3]['errors'] = self.number_emptyContent
         self.formMainCard(file_index)
-        print(self.chapterDetails[3])
+        # print(self.chapterDetails[3])
         file_index.close()
 
     # Obtener menu principal
@@ -493,7 +496,6 @@ class Doc:
                     self.seqDetails_dict['total_errors'] += number_sectionErrors
                     # Para validar contenido vacio de subsecctionaes
                     if 'errors' in self.tmp_subsectionsDict.keys():
-                        number_subSeqErrorsUrl = number_errorsUrl # Posiblemente borrar
                         list_subSeqUrlErrors = errors_urlList
                         criterio_dict = {'errorName': 'contenido vacio', 'subSeqName': u_name}
                         self.tmp_subsectionsDict['errors'].append(criterio_dict)
@@ -557,18 +559,16 @@ class Doc:
                 else:
                     
                     number_seqErrorsUrl = 0 # posiblemente borrar
-                    number_subSeqErrorsUrl = 0 # posiblemente borrar
                     list_seqUrlErrors = []
                     list_subSeqUrlErrors = []
                 
-                    criterion_dictionary = self.checkUrls(file_adress)
+                    criterion_dictionary = self.checkUrls(file_adress, name)
                     if criterion_dictionary['urls']:
                         number_errorsUrl = self.getNumberErrors(criterion_dictionary) # posiblemente borrar
                         errors_urlList = self.getErrorsUrl(criterion_dictionary)
                         number_seqErrorsUrl = number_errorsUrl # posiblemente borrar
                         list_seqUrlErrors = errors_urlList
                         if 'errors' in self.tmp_subsectionsDict.keys():
-                            number_subSeqErrorsUrl = number_errorsUrl # Posiblemente borrar
                             list_subSeqUrlErrors = errors_urlList
                             criterio_dict = {'errorName': 'url con error', 'url':list_subSeqUrlErrors}
                             self.tmp_subsectionsDict['errors'].append(criterio_dict)
@@ -674,17 +674,15 @@ class Doc:
             else:
                 
                 number_seqErrorsUrl = 0
-                number_subSeqErrorsUrl = 0
                 list_seqUrlErrors = []
                 list_subSeqUrlErrors = []
-                criterion_dictionary = self.checkUrls(file_adress)
+                criterion_dictionary = self.checkUrls(file_adress, aux_u_name)
                 if criterion_dictionary['urls']:
                     number_errorsUrl = self.getNumberErrors(criterion_dictionary)
                     errors_urlList = self.getErrorsUrl(criterion_dictionary)
                     number_seqErrorsUrl = number_errorsUrl
                     list_seqUrlErrors = errors_urlList
                     if 'errors' in self.tmp_subsectionsDict.keys():
-                        number_subSeqErrorsUrl = number_errorsUrl # Posiblemente borrar
                         list_subSeqUrlErrors = errors_urlList
                         criterio_dict = {'errorName': 'url con error', 'url':list_subSeqUrlErrors}
                         self.tmp_subsectionsDict['errors'].append(criterio_dict)
