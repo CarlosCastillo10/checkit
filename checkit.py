@@ -16,10 +16,9 @@ import html
 
 class Doc:
     
-    # Obtener curso
     def __makeCourse(self):
         """
-        Create a list of chapters by reading course.xml
+        Crea una lista de capítulos leyendo course.xml
         """
         course_file_list = list(self.course_path.iterdir())
         self.course_file = [x for x in course_file_list if x.suffix == '.xml'][0]
@@ -31,27 +30,41 @@ class Doc:
                 self.chapter_list.append(chap_name)
     
     def getCourseTitle(self):
+        """
+        Obteniene el nombre del curso que se encuentra en course.xml en el atributo display_name
+        """
         tree = ET.parse(str(self.course_file))
         root = tree.getroot()
         if 'display_name' in root.attrib:
             self.course_title = (root.attrib['display_name']).upper()
     
     def setConfigCourse(self):
+        """
+        Establece los criterios que se van a evualuar que se encuentran detallados en el archivo config.txt
+        """
         file = open('config.txt', 'r')
         for line in file:
             if (line and line.strip()):   
                 criteria_dict = {'criteriaName':line.replace('\n',''), 'errors': 0}
                 self.criteria_list.append(criteria_dict)
         
-    # Metodo para formar el card principal
     def formMainCard(self, file_index):
+        """
+        Genera la estructura básica del html, agregando los estilos de bootstrap.
+        Establece el el componente card propio de bootstrap, donde se detalla el titulo del curso.       
+        @param: file_index: Parametro de tipo _io.TextIOWrapper, que guarda la estructura del
+        reporte en formato html.
+        """
+
         file_index.write('<!DOCTYPE html>\n<html lang="en">\n<head>\n<title>%s</title>\n<meta charset="utf-8">\n'
             '<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">\n'
             '<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">\n</head>\n<body>\n'
             '<div class="container">\n<div class="card border-info mb-3 mt-5">\n<H5 class="card-header bg-info text-white text-center">REPORTE - %s</H5>\n<div class="card-body">\n'
             %(self.course_title, self.course_title.upper()))
-        self.formResumeCard(file_index)
+        
+        self.formResumeCard(file_index) 
         self.formDetailsCard(file_index)
+        
         file_index.write('</div>\n</div>\n</div>\n'
             '<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>\n'
             '<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>\n'
@@ -361,7 +374,7 @@ class Doc:
         os.mkdir('%s/course-report'%self.path) # Crear directorio 'course-report'
         
         file_index = open(str(self.path)+'/course-report/index.html','w') # Crear archivo 'index.html'
-   
+        print(type(file_index))
         self.setConfigCourse()
         self.describeChapter(file_index)
         self.criteria_list[0]['errors'] = self.number_sectionErrors
@@ -557,7 +570,7 @@ class Doc:
                         else:
                             pub_prob[p_name] = {'file':pro_name, 'weight':Dict['weight']}
                 else:
-                    
+                    '''
                     number_seqErrorsUrl = 0 # posiblemente borrar
                     list_seqUrlErrors = []
                     list_subSeqUrlErrors = []
@@ -578,13 +591,13 @@ class Doc:
                         self.number_urlErrors += number_errorsUrl
                     
                     self.seqDetails_dict['total_errors'] +=  number_seqErrorsUrl
-                                
+                    '''           
                 pro_list.append((str(pFile), pro[0]))
             elif pro[0] == 'video':
                 pro_name = pro[1]+'.xml'
                 pFile = self.path / pro[0] / pro_name
                 file_adress = self.path / pro[0] / pro_name
-                
+                '''
                 number_seqErrorsVideo = 0
                 number_subSeqErrorsVideo = 0
                 list_seqVideoErrors = []
@@ -603,7 +616,7 @@ class Doc:
                     self.number_videoErrors += 1
                 
                 self.seqDetails_dict['total_errors'] += number_seqErrorsVideo
-                
+                '''
             elif pro[0] == 'problem':
                 letters = list(range(97,123))
                 pro_name = pro[1]+'.xml'
@@ -672,7 +685,7 @@ class Doc:
             if pro[0] == 'problem':
                 pass
             else:
-                
+                '''
                 number_seqErrorsUrl = 0
                 list_seqUrlErrors = []
                 list_subSeqUrlErrors = []
@@ -692,7 +705,7 @@ class Doc:
                     self.number_urlErrors += number_errorsUrl
                 
                 self.seqDetails_dict['total_errors'] +=  number_seqErrorsUrl
-                
+                '''
             prob_list.append((str(pFile), '(draft)'+pro[0]))
         if number_errorsUrl > 0:
             self.tmp_dictionary['total_errors'] += self.tmp_dictionary['total_errors'] + number_errorsUrl
