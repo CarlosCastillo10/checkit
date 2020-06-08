@@ -366,6 +366,7 @@ class Doc:
         self.criteria_list[2]['errors'] = self.number_videoErrors
         self.criteria_list[3]['errors'] = self.number_emptyContent
         self.formMainCard(file_index)
+        print(self.chapterDetails[3])
         file_index.close()
 
     # Obtener menu principal

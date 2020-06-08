@@ -1,0 +1,45 @@
+{
+  "idCourse": "0001",
+  "courseName": "Concimiento ancestral",
+  "reports":[
+    {
+      "reportDate": "2020-06-06",
+      "reportTime": "18:22",
+      "status":[
+        {
+          "chapterName": "Semana 1",
+          "totalErrors": "3",
+          "sections":[
+            {
+              "sectionName": "Objetivo de la semana",
+              "errors":[],
+              "subsections":[
+                {
+                  "subsectionName": "Definiciones bascias",
+                  "errors":[
+                    {
+                     "errorName": "url con error",
+                     "urls":[
+                       "https://www.canva.com", "https://awebanalysis.com/es/json-parser-online/"
+                      ]
+                    },
+                    {
+                      "errorName":"videos con error",
+                      "videos":[
+                        "https://www.youtube.com/watch?v=jwsG-4ogHZ8"
+                      ]
+                    },
+                    {
+                      "errorName":"contenido vacio",
+                      "emptyContent": "False"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }  
+      ]
+    }
+  ]
+}
