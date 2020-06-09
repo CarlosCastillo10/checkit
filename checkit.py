@@ -487,8 +487,7 @@ class Doc:
 
     def describeChapter(self):
         """
-        Obtener la información de cada capítulo del curso
-
+        Obtener la informacion de cada capítulo del curso.
         """
         for c in self.chapter_list:
             self.tmp_dictionary = {}
@@ -522,6 +521,10 @@ class Doc:
 
 
     def describeSequen(self, seq):
+        """
+        Obtener la lista de secciones que contiene cada capítulo
+        @param: seq: Listado de secciones
+        """
         pub_seq = OrderedDict()
         all_seq = OrderedDict()
         tmp_seqDetails_list = []
@@ -574,6 +577,12 @@ class Doc:
         return pub_seq, all_seq
 
     def describeUnit(self, uni, sequ_name):
+        """
+        Obtener la lista de unidades que contiene cada seccion.
+        Se determina si el contenido de cada unidad, es un problema, un video o un html.
+        @param: uni: Listado de subsecciones
+        @param: sequ_name: Nombre de sección
+        """
         tmp_subsectionsList = []
         pub_uni = OrderedDict()
         all_uni = OrderedDict()
@@ -628,7 +637,11 @@ class Doc:
         return pub_uni, all_uni
 
     def describeProb(self, prob_list, name):
-
+        """
+        Obtener la información de cada archivo detallado en la lista de secciones, o subsecciones
+        @param: prob_list: Listado de archivos que conforman cada unidad del curso
+        @param: name: Nombre unidad
+        """
         pub_prob = OrderedDict()
         pro_list = []
 
@@ -737,7 +750,11 @@ class Doc:
 
     # Obtener informacion de unidades
     def describeDraftUnit(self, unit, sequ_name):
-
+        """
+        Obtener la lista de unidades que contiene la seccion de anuncios.
+        @param: unit: Listado de unidades
+        @param: sequ_name: Nombre de sección
+        """
         all_uni = OrderedDict()
         tmp_subsectionsList = []
 
@@ -760,6 +777,12 @@ class Doc:
 
     
     def describeDraftProb(self, probs, aux_u_name):
+        """
+        Obtener la información de cada archivo detallado en la lista de unidades de la seccion
+        de anuncios
+        @param: probs: Listado de archivos que conforman la seccion de anuncios
+        @param: aux_u_name: Nombre unidad
+        """
         prob_list = []
         txt_prob = ''
         num_drafts_prob = 0
@@ -813,7 +836,6 @@ class Doc:
         return prob_list
 
 if __name__ == "__main__":
-
     if len(sys.argv) != 2:
         pass
     else:
