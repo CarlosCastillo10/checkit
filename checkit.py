@@ -498,6 +498,7 @@ class Doc:
         self.seq_Details_list = []
         self.seqDetails_dict  = {}
         self.tmp_subsectionsDict = {}
+       
 
         self.__makeCourse()
 

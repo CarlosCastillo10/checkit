@@ -1,57 +1,53 @@
 {
   "courseID": "AKOMP13",
   "courseName": "Concimiento ancestral de plantas medicinales (edicion 13)",
-  "reports":[
-    {
-      "reportDate": "2020-06-06",
-      "reportTime": "18:22",
-      "status":{
-        "requiredChapters":[
-          {
-            "chapterName":"espacio colaborativo",
-            "isCreated": "True"
-          }
-        ],
-        "detailsChapters":[
-          {
-            "chapterName": "Semana 1",
-            "emptyContent": "False",
-            "totalErrors": "5",
-            "sections":[
-              {
-                "sectionName": "Objetivo de la semana",
-                "errors":[],
-                "subsections":[
-                  {
-                    "subsectionName": "Definiciones bascias",
-                    "emptyContent":"False",
-                    "errors":[
-                      {
-                        "errorName": "url con error",
-                        "urls":[
-                          "https://www.canva.com", "https://awebanalysis.com/es/json-parser-online/"
-                        ]
-                      },
-                      {
-                        "errorName":"videos con error",
-                        "videos":[
-                          "https://www.youtube.com/watch?v=jwsG-4ogHZ8"
-                        ]
-                      },
-                      {
-                        "errorName":"pdf con error",
-                        "files":[
-                          "Ficha.pdf","moocs-triptico.pdf"  
-                        ] 
-                      }
-                    ]
-                  } 
-                ]
-              }
-            ]
-          }        
-        ]
+  "reportDate": "2020-06-06",
+  "reportTime": "18:22",
+  "status":{
+    "requiredChapters":[
+      {
+        "chapterName":"espacio colaborativo",
+        "isCreated": "True"
       }
-    }  
-  ]
+    ],
+    "detailsChapters":[
+      {
+        "chapterName": "Semana 1",
+        "emptyContent": "False",
+        "totalErrors": "5",
+        "sections":[
+          {
+            "sectionName": "Objetivo de la semana",
+            "errors":[],
+            "subsections":[
+              {
+                "subsectionName": "Definiciones bascias",
+                "emptyContent":"False",
+                "errors":[
+                  {
+                    "errorName": "url con error",
+                    "urls":[
+                      "https://www.canva.com", "https://awebanalysis.com/es/json-parser-online/"
+                    ]
+                  },
+                  {
+                    "errorName":"videos con error",
+                    "videos":[
+                      "https://www.youtube.com/watch?v=jwsG-4ogHZ8"
+                    ]
+                  },
+                  {
+                    "errorName":"pdf con error",
+                    "files":[
+                      "Ficha.pdf","moocs-triptico.pdf"  
+                    ] 
+                  }
+                ]
+              } 
+            ]
+          }
+        ]
+      }        
+    ]
+  }
 }
