@@ -31,7 +31,8 @@ class Doc:
     
     def getCourseTitle(self):
         """
-        Obteniene el nombre del curso que se encuentra en course.xml en el atributo display_name
+        Obteniene el nombre del curso que se encuentra en course.xml en el atributo 
+        display_name
         """
         tree = ET.parse(str(self.course_file))
         root = tree.getroot()
@@ -40,7 +41,8 @@ class Doc:
     
     def setConfigCourse(self):
         """
-        Establece los criterios que se van a evualuar que se encuentran detallados en el archivo config.txt
+        Establece los criterios que se van a evualuar que se encuentran detallados en 
+        el archivo config.txt
         """
         file = open('config.txt', 'r')
         for line in file:
@@ -51,38 +53,65 @@ class Doc:
     def formMainCard(self, file_index):
         """
         Genera la estructura básica del html, agregando los estilos de bootstrap.
-        Establece el el componente card propio de bootstrap, donde se detalla el titulo del curso.       
-        @param: file_index: Parametro de tipo _io.TextIOWrapper, que guarda la estructura del
-        reporte en formato html.
+        Establece el componente card propio de bootstrap, donde se detalla el 
+        titulo del curso.       
+        @param: file_index: Parametro de tipo _io.TextIOWrapper, guarda la estructura 
+        del reporte en formato html.
         """
-
-        file_index.write('<!DOCTYPE html>\n<html lang="en">\n<head>\n<title>%s</title>\n<meta charset="utf-8">\n'
-            '<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">\n'
-            '<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">\n</head>\n<body>\n'
-            '<div class="container">\n<div class="card border-info mb-3 mt-5">\n<H5 class="card-header bg-info text-white text-center">REPORTE - %s</H5>\n<div class="card-body">\n'
-            %(self.course_title, self.course_title.upper()))
+        file_index.write('<!DOCTYPE html>\n<html lang="en">\n<head>\n<title>%s</title>\n<meta '
+            'charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-'
+            'scale=1, shrink-to-fit=no">\n<link rel="stylesheet" '
+            'href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" '
+            'integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" '
+            'crossorigin="anonymous">\n</head>\n<body>\n<div class="container">\n<div class="card '
+            'border-info mb-3 mt-5">\n<H5 class="card-header bg-info text-white text-center">'
+            'REPORTE - %s</H5>\n<div class="card-body">\n'%(self.course_title, self.course_title.upper()))
         
         self.formResumeCard(file_index) 
         self.formDetailsCard(file_index)
-        
-        file_index.write('</div>\n</div>\n</div>\n'
-            '<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>\n'
-            '<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>\n'
-            '<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>\n'
+        file_index.write('</div>\n</div>\n</div>\n<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" '
+            'integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>\n'
+            '<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" '
+            'integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" '
+            'crossorigin="anonymous"></script>\n<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" '
+            'integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>\n'
             '</body>\n</html>')
  
-    # Metodo para formar el card de Resumen
     def formResumeCard(self, file_index):
-        file_index.write('<div class="card bg-transparent border-success mb-5">\n<div class="card-header text-center bg-success border-success text-white">RESUMEN</div>\n'
-            '<div class="card-body">\n<div class="table-responsive-sm">\n<table class="table table-sm table-hover">\n'
-            '<p class="card-text text-dark">Aqui escribir algo</p>\n'
-            '<thead class="table-success">\n<tr>\n<th scope="col"># Errores</th>\n<th scope="col">Criterio</th>\n<th scope="col">Estado</th>\n</tr>\n</thead>\n<tbody>\n')
+        """
+        Establece el componente card propio de bootstrap, donde se detalla el resumen del reporte.       
+        @param: file_index: Parametro de tipo _io.TextIOWrapper, guarda la estructura del
+        reporte en formato html.
+        """
+        file_index.write('<div class="card bg-transparent border-success mb-5">\n<div class="card-header text-center bg-success '
+            'border-success text-white">RESUMEN</div>\n<div class="card-body">\n<div class="table-responsive-sm">\n<table '
+            'class="table table-sm table-hover">\n<p class="card-text text-dark">Aqui escribir algo</p>\n
+            '<thead class="table-success">\n<tr>\n<th scope="col"># Errores</th>\n<th scope="col">Criterio</th>\n'
+            '<th scope="col">Estado</th>\n</tr>\n</thead>\n<tbody>\n')
+        
         total_errors = self.formResumeTable(file_index)
         file_index.write('</tbody>\n<caption>Total errores: %d\n</table>\n</div>\n</div>\n</div>\n'%total_errors)
     
-    # Metodo para formar la tabla de resumen
     def formResumeTable(self, file_index):
-        total_errors = 0
+        """
+        Establece la tabla de resumen donde se define la siguiente estructura
+            +-----------+-----------+-----------+
+            +  Errors   +  Criterio +   Estado  + 
+            +-----------+-----------+-----------+
+            +    0      +    ----   +   ----    +
+            +    0      +    ----   +   ----    +
+            +    0      +    ----   +   ----    +
+            +-----------+-----------+-----------+
+            + Total errores: 0                  +
+            +-----------------------------------+ 
+
+        Establece un icono check o un icono error de bootstrap, dependiente del valor de errores de 
+        cada criterio evaluado
+        @param: file_index: Parametro de tipo _io.TextIOWrapper, guarda la estructura del
+        reporte en formato html.
+        @return: total_errors: Numero total de errores del curso
+        """
+        total_errors = 0 
         for criterion in self.criteria_list:
             total_errors += criterion['errors']
             file_index.write('<tr>\n<th scope="row">%s</th>\n<td>%s</td>\n<td>\n'%(criterion['errors'], criterion['criteriaName']))
@@ -98,34 +127,55 @@ class Doc:
         return total_errors
 
     def formDetailsCard(self,file_index):
+        """
+        Establece el componente card propio de bootstrap, donde consta el detalle del reporte. 
+        Obtiene cada capitulo de la lista de capitulos generada en __makeCourse y por cada uno genera 
+        un componente card propio de bootstrap.     
+        @param: file_index: Parametro de tipo _io.TextIOWrapper, guarda la estructura del
+        reporte en formato html.
+        """
         file_index.write('<div class="card bg-light border-secondary mb-3">\n'
             '<div class="card-header text-center bg-secondary border-success text-white">DETALLE</div>\n'
             '<div class="card-body">\n<div id="accordion">\n')
         num_heading = 0
+        
         for chap_detail in self.chapterDetails:
             num_heading += 1
             file_index.write('<div class="card border-info mb-3">\n'
                 '<div class="card-header" id="heading%d">\n'
-                '<button class="btn btn-outline-light" data-toggle="collapse" data-target="#collapse%d" aria-expanded="true" aria-controls="collapse%d">\n'
-                '<svg class="bi bi-plus-square-fill text-dark" width="2em" height="2em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">\n'
-                '<path fill-rule="evenodd" d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm6.5 4a.5.5 0 0 0-1 0v3.5H4a.5.5 0 0 0 0 1h3.5V12a.5.5 0 0 0 1 0V8.5H12a.5.5 0 0 0 0-1H8.5V4z"/>\n'
+                '<button class="btn btn-outline-light" data-toggle="collapse" data-target="#collapse%d" '
+                'aria-expanded="true" aria-controls="collapse%d">\n<svg class="bi bi-plus-square-fill text-dark" '
+                'width="2em" height="2em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">\n'
+                '<path fill-rule="evenodd" d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm6.5 '
+                '4a.5.5 0 0 0-1 0v3.5H4a.5.5 0 0 0 0 1h3.5V12a.5.5 0 0 0 1 0V8.5H12a.5.5 0 0 0 0-1H8.5V4z"/>\n'
                 '</svg>\n</button>\n%s       '%(num_heading, num_heading, num_heading, chap_detail['chapter_name']))
+            
             if chap_detail['total_errors'] > 0:
                 file_index.write('<span class="badge badge-pill badge-danger">')
             else:
                 file_index.write('<span class="badge badge-pill badge-success">')
+            
             file_index.write('%d</span>\n</div>\n'
                 '<div id="collapse%d" class="collapse hide" aria-labelledby="heading%d" data-parent="#accordion">\n'
                 '<div class="card-body">\n<div id="accordion1">\n'%(chap_detail['total_errors'],num_heading, num_heading))
-            self.formDetailSections(file_index, chap_detail['sections'])
+            
+            self.formDetailSections(file_index, chap_detail['sections']) # Por cada capítulo obtenemos la lista de secciones
+            
             file_index.write('</div>\n</div>\n</div>\n</div>\n')    
         file_index.write('</div>\n</div>\n</div>\n')
     
+
     def formDetailSections(self, file_index, section_list):
+        """ 
+        Por cada seccion que contiene cada capítulo genera que contiene un componente card propio de bootstrap.     
+        @param: file_index: Parametro de tipo _io.TextIOWrapper, guarda la estructura del reporte en formato html.
+        @param: section_list: Lista de secciones de cada capítulo
+        """
         for section in section_list:
             self.num_sectionErrors = 0
             self.num_subHeading += 1
             aux_typeCard = ''
+            
             if section['total_errors'] > 0:
                 file_index.write('<div class="card border-danger mb-3">\n')
                 aux_typeCard = '%s<span class="badge badge-pill badge-danger text-center">%d</span>\n'%(aux_typeCard, section['total_errors'])
@@ -143,13 +193,22 @@ class Doc:
                         '<path fill-rule="evenodd" d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm6.5 4a.5.5 0 0 0-1 0v3.5H4a.5.5 0 0 0 0 1h3.5V12a.5.5 0 0 0 1 0V8.5H12a.5.5 0 0 0 0-1H8.5V4z"/>\n'
                         '</svg>\n</button>\n%s     %s</div>\n<div id="subcollapse%d" class="collapse hide" aria-labelledby="subHeading%d" data-parent="#accordion1">\n'
                         '<div class="card-body">\n'%(self.num_subHeading, self.num_subHeading, self.num_subHeading, section['name_seq'], aux_typeCard, self.num_subHeading, self.num_subHeading))
+                
+                # Si es que la sección contiene subsecciones
                 if len(section['subsections'][0]) != 0:
-                    self.formDetailSubSections(file_index, section['subsections'])
+                    self.formDetailSubSections(file_index, section['subsections']) 
                 
                 self.formListErrors(file_index, section['errors'])
                 file_index.write('</div>\n</div>\n</div>\n')
     
     def formDetailSubSections(self, file_index, subSection_list):
+        """ 
+        Obtiene de la lista de  que contiene 'chapterDetails' y por cada uno genera 
+        un componente card propio de bootstrap.     
+        @param: file_index: Parametro de tipo _io.TextIOWrapper, guarda la estructura del
+        reporte en formato html.
+        @param: section_list: Lista de secciones de cada capítulo
+        """
         for subsection in subSection_list:
             self.num_subSectionHeading += 1
             aux_typeCard = ''
@@ -172,8 +231,21 @@ class Doc:
                 self.formListErrors(file_index, subsection['errors'])
                 file_index.write('</div>\n</div>\n</div>\n')
             
-    
     def formListErrors(self,file_index, list_errors):
+        """
+        Establece la tabla de descripción de errores donde se define la siguiente estructura
+            +------------+-----------------------+
+            + <criterio> +          ---          +
+            +------------+          ---          +
+            + <criterio> +          ---          +
+            +------------+          ---          +
+            + <criterio> +          ---          +
+            +------------+-----------------------+
+
+        @param: file_index: Parametro de tipo _io.TextIOWrapper, guarda la estructura del
+        reporte en formato html.
+        @param: list_errors: Listado de errores por cada unidad que contiene el curso
+        """
         if list_errors:
             self.num_sectionErrors += 1
             file_index.write('<div class="row">\n<div class="col-4">\n<div class="list-group" id="list-tab" role="tablist">\n')
@@ -203,16 +275,23 @@ class Doc:
                 txt_tabContent = '%s%s\n</div>'%(txt_tabContent,txt_details)
             file_index.write('</div>\n</div>\n<div class="col-8">\n%s\n</div>\n</div>\n</div>\n'%txt_tabContent)
     
-    # Metodo para validar cada url de cada archivo
-    def checkUrls(self, file_adress, name):
+
+    def checkUrls(self, file_adress):
+        """
+        Genera un diccionario con el detalle de urls que contiene cada unidad del curso
+        @param: file_adress: Parametro de tipo Path que contiene la direccion de los archivos .html
+        @return: dict_reportUrl: Diccionario que contiene el archivo analizado y el listado de urls
+        """
         dict_reportUrl = {'file': '','urls':self.getUrls(file_adress)}
-        for x in dict_reportUrl['urls']:
-            if '.pdf' in x['url']:
-                print('%s - %s'%(url, name))
         return dict_reportUrl
 
-    # Metodo para obtener el numero de errores de cada criterio
     def getNumberErrors(self, criterion_dictionary):
+        """
+        Obtiene el numero de urls con error
+        @param: criterion_dictionary: Parametro de tipo dict que contiene el listado de urls analizadas
+        por cada unidad que contiene el curso.
+        @return: num_errors: Numero de url con error
+        """
         num_errors = 0 
         for criterion in criterion_dictionary['urls']:
             if 'incorrecto' in criterion['estado']:
@@ -220,44 +299,64 @@ class Doc:
         return num_errors
     
     def getErrorsUrl(self, criterion_dictionary):
+        """
+        Obtiene el listado de urls con error
+        @param: criterion_dictionary: Parametro de tipo dict que contiene el listado de urls analizadas
+        por cada unidad que contiene el curso.
+        @return: url_errorList: Numero de url con error
+        """
         url_errorsList = [] 
         for criterion in criterion_dictionary['urls']:
             if 'incorrecto' in criterion['estado']:
                 url_errorsList.append(criterion['url'])
         return url_errorsList
     
-    # Metodo para obtener las url de cada archivo
     def getUrls(self, file_adress):
+        """
+        Obtiene el listado de url que contiene cada archivo.
+        @param: file_adress: Parametro de tipo Path que contiene la direccion de los archivos .html
+        @return: list_stateUrls: Listado de urls.
+        """
         list_stateUrls = []
         file_content = file_adress.open().readlines()
-        url_pattern = re.compile(r'["]http([^"]*)')
+        url_pattern = re.compile(r'["]http([^"]*)') # Expresión regular
 
-        list_url = [] # Lista que almacenara las url
+        list_url = [] 
 
         for line in file_content:
             match = url_pattern.search(line)
             if match:
                 list_url.append(match.group().lstrip('"'))
         if list_url:
-            list_stateUrls = self.validateUrlStatus(list_url)
+            list_stateUrls = self.validateUrlStatus(list_url) # Siempre y cuando el archivo contenga urls
         return list_stateUrls
 
-    # Metodo para validar cada url
     def validateUrlStatus(self, list_url):
+        """
+        Realiza una solicitud http por cada url. Si la respuesta devuelve un valor  diferenre de 200
+        significa que la solicitud no pudo ser procesada y se determina como una url con error.
+        @param: list_url: Parametro de tipo list que contiene el listado de urls de cada unidad.
+        @return: list_states: Listado de urls con su estado.
+        """
         list_states = []
         for url in list_url:
             try:
                 response, content = httplib2.Http(disable_ssl_certificate_validation=True).request(html.unescape(url))
                 if response.status != 200:
-                    list_states.append({'url' : url, 'estado' : 'incorrecto'})
-                                    
+                    list_states.append({'url' : url, 'estado' : 'incorrecto'})                                    
             except httplib2.HttpLib2Error as err:
                 pass
             
         return list_states
         
-    # Metodo para validar cada video de la carpeta 'video'
     def checkVideos(self, file_adress):
+        """
+        Obtiene por cada archivo .xml que se encuentre en la carpeta video,
+        el valor que contiene el atributo youtube_id_1_0 y si le agrega a ese valor
+        la estructura común de un video de youtube.
+        @param: file_adress: Parametro de tipo Path que contiene la direccion de los archivos .xml
+        @return: getVideoStatus(): Metodo que devuelve un True o False dependiente del estado del video.
+        """
         tree = ET.parse(str(file_adress))
         root = tree.getroot()
         video_url = ''
@@ -267,8 +366,13 @@ class Doc:
         
         return self.getVideoStatus(video_url)
 
-    # Metodo que permite verificar si el video esta disponible
     def getVideoStatus(self, video_url):
+        """
+        Por cada url genera una instancia a través de la librería pafy.
+        @param: video?url: Parametro de tipo str que contiene la direccion del video de youtube.
+        @return: video_status: Contiene el estado del video, True si pudo obtener información del video
+        caso contrario False.
+        """
         video_status = True
         try:
             if video_url:
@@ -278,8 +382,10 @@ class Doc:
             video_status = False
         return video_status
 
-    # Obtener estructura del curso
     def __makeDraftStruct(self):
+        """
+        Obtener la estructura del curso
+        """
         for v in self.draft_vert_path.iterdir():
             if v.suffix != '.xml':
                 continue
@@ -306,7 +412,6 @@ class Doc:
             sorted_struct = sorted(self.draft_problems_struct[k], key = lambda x: x[0])
             self.draft_problems_struct[k] = [s[1:] for s in sorted_struct]
 
-    # Constructor
     def __init__(self, start_path):
        
         if not os.path.isdir(start_path):
@@ -335,7 +440,7 @@ class Doc:
         self.draft_path = self.path / 'drafts'
         self.draft_vert_path = self.draft_path / 'vertical'
 
-        ## Variables auxiliares
+        # Variables auxiliares
         self.aux_course_path = 'course'
         self.aux_chapter_path = 'chapter'
         self.aux_seq_path = 'sequential'
@@ -344,10 +449,9 @@ class Doc:
         self.aux_draft_path = 'drafts'
         self.aux_draft_vert_path = 'vertical'
 
-        ## lista de capitulos
-        self.chapter_list = []
+        self.chapter_list = [] # lista de capitulos
 
-        self.criteria_list = [] 
+        self.criteria_list = [] # lista de criterios
 
         ## Estructura de secciones y unidades
         self.draft_problems_struct = OrderedDict()
@@ -359,7 +463,6 @@ class Doc:
         self.seqDetails_dict  = {}
         self.tmp_subsectionsDict = {}
 
-        ## obtener estructura del curso
         self.__makeCourse()
 
         if self.draft_path.exists() and self.draft_vert_path.exists():
@@ -367,27 +470,26 @@ class Doc:
             
     def describeCourse(self):
         
-        # Validar si el directorio 'course-report' existe
         if os.path.isdir('%s/course-report'%self.path):
             rmtree('%s/course-report'%self.path) # Eliminar directorio 'course-report'
         
         os.mkdir('%s/course-report'%self.path) # Crear directorio 'course-report'
         
         file_index = open(str(self.path)+'/course-report/index.html','w') # Crear archivo 'index.html'
-        print(type(file_index))
         self.setConfigCourse()
-        self.describeChapter(file_index)
+        self.describeChapter()
         self.criteria_list[0]['errors'] = self.number_sectionErrors
         self.criteria_list[1]['errors'] = self.number_urlErrors
         self.criteria_list[2]['errors'] = self.number_videoErrors
         self.criteria_list[3]['errors'] = self.number_emptyContent
         self.formMainCard(file_index)
-        # print(self.chapterDetails[3])
         file_index.close()
 
-    # Obtener menu principal
-    def describeChapter(self, file_index):
- 
+    def describeChapter(self):
+        """
+        Obtener la información de cada capítulo del curso
+
+        """
         for c in self.chapter_list:
             self.tmp_dictionary = {}
             c += '.xml'
@@ -408,7 +510,7 @@ class Doc:
                 # eliminar el item inicial
                 seq_list = [l.split('"')[1] for l in chap_txt if "sequential" in l]
 
-                pub_seq_struct, all_seq_struct = self.describeSequen(seq_list, file_index)
+                pub_seq_struct, all_seq_struct = self.describeSequen(seq_list)
                 self.chapterDetails.append(self.tmp_dictionary)
 
                 ### estructura publica
@@ -419,7 +521,7 @@ class Doc:
         self.public_problems_struct = dict((k, v) for k, v in self.public_problems_struct.items() if v)
 
 
-    def describeSequen(self, seq, file_index):
+    def describeSequen(self, seq):
         pub_seq = OrderedDict()
         all_seq = OrderedDict()
         tmp_seqDetails_list = []
@@ -437,7 +539,7 @@ class Doc:
 
             if len(seq_txt) > 2:
                 unit_list = [l.split('"')[1] for l in seq_txt if "vertical" in l]
-                pub_dict, all_dict = self.describeUnit(unit_list, file_index, sequ_name)
+                pub_dict, all_dict = self.describeUnit(unit_list, sequ_name)
                 pub_seq[sequ_name] = pub_dict
 
                 if s in self.draft_problems_struct.keys():
@@ -449,7 +551,7 @@ class Doc:
                             unpublished = True
                             self.draft_problems_struct[s].remove(u)
                     if self.draft_problems_struct[s]:
-                        all_dict2 = self.describeDraftUnit(self.draft_problems_struct[s], file_index, sequ_name)
+                        all_dict2 = self.describeDraftUnit(self.draft_problems_struct[s], sequ_name)
                         for d in all_dict2:
                             all_dict[d] = all_dict2[d]
                 
@@ -462,7 +564,7 @@ class Doc:
                 if s not in self.draft_problems_struct.keys():
                     all_dict = OrderedDict()
                 else:
-                    all_dict = self.describeDraftUnit(self.draft_problems_struct[s], file_index, sequ_name)
+                    all_dict = self.describeDraftUnit(self.draft_problems_struct[s], sequ_name)
                 all_seq['('+s_name[-9:-4]+')'+sequ_name] = (str(sFile), all_dict)
             
             tmp_seqDetails_list.append(self.seqDetails_dict)
@@ -471,7 +573,7 @@ class Doc:
         pub_seq = dict((k, v) for k, v in pub_seq.items() if v)
         return pub_seq, all_seq
 
-    def describeUnit(self, uni, file_index, sequ_name):
+    def describeUnit(self, uni, sequ_name):
         tmp_subsectionsList = []
         pub_uni = OrderedDict()
         all_uni = OrderedDict()
@@ -518,14 +620,14 @@ class Doc:
 
             tmp_subsectionsList.append(self.tmp_subsectionsDict)
         
-            pub_dict, all_dict = self.describeProb(prob_list, file_index, aux_u_name.lower())
+            pub_dict, all_dict = self.describeProb(prob_list, aux_u_name.lower())
             pub_uni[u_name] = pub_dict
             all_uni['('+u[-9:-4]+')'+u_name] = (str(uFile), all_dict)
         pub_uni = dict((k, v) for k, v in pub_uni.items() if v)
         self.seqDetails_dict['subsections'] = tmp_subsectionsList
         return pub_uni, all_uni
 
-    def describeProb(self, prob_list, file_index, name):
+    def describeProb(self, prob_list, name):
 
         pub_prob = OrderedDict()
         pro_list = []
@@ -570,12 +672,12 @@ class Doc:
                         else:
                             pub_prob[p_name] = {'file':pro_name, 'weight':Dict['weight']}
                 else:
-                    '''
+                
                     number_seqErrorsUrl = 0 # posiblemente borrar
                     list_seqUrlErrors = []
                     list_subSeqUrlErrors = []
                 
-                    criterion_dictionary = self.checkUrls(file_adress, name)
+                    criterion_dictionary = self.checkUrls(file_adress)
                     if criterion_dictionary['urls']:
                         number_errorsUrl = self.getNumberErrors(criterion_dictionary) # posiblemente borrar
                         errors_urlList = self.getErrorsUrl(criterion_dictionary)
@@ -591,13 +693,14 @@ class Doc:
                         self.number_urlErrors += number_errorsUrl
                     
                     self.seqDetails_dict['total_errors'] +=  number_seqErrorsUrl
-                    '''           
+                  
                 pro_list.append((str(pFile), pro[0]))
+            
             elif pro[0] == 'video':
                 pro_name = pro[1]+'.xml'
                 pFile = self.path / pro[0] / pro_name
                 file_adress = self.path / pro[0] / pro_name
-                '''
+    
                 number_seqErrorsVideo = 0
                 number_subSeqErrorsVideo = 0
                 list_seqVideoErrors = []
@@ -616,7 +719,7 @@ class Doc:
                     self.number_videoErrors += 1
                 
                 self.seqDetails_dict['total_errors'] += number_seqErrorsVideo
-                '''
+
             elif pro[0] == 'problem':
                 letters = list(range(97,123))
                 pro_name = pro[1]+'.xml'
@@ -633,7 +736,7 @@ class Doc:
         return pub_prob, pro_list
 
     # Obtener informacion de unidades
-    def describeDraftUnit(self, unit, file_index, sequ_name):
+    def describeDraftUnit(self, unit, sequ_name):
 
         all_uni = OrderedDict()
         tmp_subsectionsList = []
@@ -671,8 +774,7 @@ class Doc:
             
             pFile_html = self.draft_path / pro[0] / pro_name_html
             
-            # Variable nueva
-            file_adress = self.draft_path / pro[0] / pro_name_html # direccion del archivo
+            file_adress = self.draft_path / pro[0] / pro_name_html
             
             p_txt = pFile.open().readlines()
 
@@ -685,11 +787,10 @@ class Doc:
             if pro[0] == 'problem':
                 pass
             else:
-                '''
                 number_seqErrorsUrl = 0
                 list_seqUrlErrors = []
                 list_subSeqUrlErrors = []
-                criterion_dictionary = self.checkUrls(file_adress, aux_u_name)
+                criterion_dictionary = self.checkUrls(file_adress)
                 if criterion_dictionary['urls']:
                     number_errorsUrl = self.getNumberErrors(criterion_dictionary)
                     errors_urlList = self.getErrorsUrl(criterion_dictionary)
@@ -705,12 +806,11 @@ class Doc:
                     self.number_urlErrors += number_errorsUrl
                 
                 self.seqDetails_dict['total_errors'] +=  number_seqErrorsUrl
-                '''
+            
             prob_list.append((str(pFile), '(draft)'+pro[0]))
         if number_errorsUrl > 0:
             self.tmp_dictionary['total_errors'] += self.tmp_dictionary['total_errors'] + number_errorsUrl
         return prob_list
-
 
 if __name__ == "__main__":
 
