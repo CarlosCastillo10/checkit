@@ -70,12 +70,13 @@ class Doc:
         self.formResumeCard(file_index) 
         self.formDetailsCard(file_index)
         file_index.write('</div>\n</div>\n</div>\n<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" '
-            'integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>\n'
-            '<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" '
+            'integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous">'
+            '</script>\n<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" '
             'integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" '
-            'crossorigin="anonymous"></script>\n<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" '
-            'integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>\n'
-            '</body>\n</html>')
+            'crossorigin="anonymous"></script>\n<script '
+            'src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" '
+            'integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous">'
+            '</script>\n</body>\n</html>')
  
     def formResumeCard(self, file_index):
         """
@@ -83,10 +84,11 @@ class Doc:
         @param: file_index: Parametro de tipo _io.TextIOWrapper, guarda la estructura del
         reporte en formato html.
         """
-        file_index.write('<div class="card bg-transparent border-success mb-5">\n<div class="card-header text-center bg-success '
-            'border-success text-white">RESUMEN</div>\n<div class="card-body">\n<div class="table-responsive-sm">\n<table '
-            'class="table table-sm table-hover">\n<p class="card-text text-dark">Aqui escribir algo</p>\n
-            '<thead class="table-success">\n<tr>\n<th scope="col"># Errores</th>\n<th scope="col">Criterio</th>\n'
+        file_index.write('<div class="card bg-transparent border-success mb-5">\n<div class="card-header text-center '
+            'bg-success border-success text-white">RESUMEN</div>\n<div class="card-body">\n'
+            '<div class="table-responsive-sm">\n<table class="table table-sm table-hover">\n'
+            '<p class="card-text text-dark">Aqui escribir algo</p>\n<thead class="table-success">\n<tr>\n'
+            '<th scope="col"># Errores</th>\n<th scope="col">Criterio</th>\n'
             '<th scope="col">Estado</th>\n</tr>\n</thead>\n<tbody>\n')
         
         total_errors = self.formResumeTable(file_index)
@@ -114,15 +116,24 @@ class Doc:
         total_errors = 0 
         for criterion in self.criteria_list:
             total_errors += criterion['errors']
-            file_index.write('<tr>\n<th scope="row">%s</th>\n<td>%s</td>\n<td>\n'%(criterion['errors'], criterion['criteriaName']))
+            file_index.write('<tr>\n<th scope="row">%s</th>\n<td>%s</td>\n<td>\n'%(criterion['errors'], 
+                criterion['criteriaName']))
+            
             if criterion['errors'] == 0:
-                file_index.write('<svg class="bi bi-check-circle-fill text-success" width="1.5em" height="1.5em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">\n'
-                    '<path fill-rule="evenodd" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>\n'
-                    '</svg>\n')
+                file_index.write('<svg class="bi bi-check-circle-fill text-success" width="1.5em" height="1.5em" '
+                    'viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">\n'
+                    '<path fill-rule="evenodd" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 '
+                    '0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 '
+                    '1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>\n</svg>\n')
             else:
-                file_index.write('<svg class="bi bi-x-octagon-fill text-danger" width="1.5em" height="1.5em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">\n'
-                    '<path fill-rule="evenodd" d="M11.46.146A.5.5 0 0 0 11.107 0H4.893a.5.5 0 0 0-.353.146L.146 4.54A.5.5 0 0 0 0 4.893v6.214a.5.5 0 0 0 .146.353l4.394 4.394a.5.5 0 0 0 .353.146h6.214a.5.5 0 0 0 .353-.146l4.394-4.394a.5.5 0 0 0 .146-.353V4.893a.5.5 0 0 0-.146-.353L11.46.146zm.394 4.708a.5.5 0 0 0-.708-.708L8 7.293 4.854 4.146a.5.5 0 1 0-.708.708L7.293 8l-3.147 3.146a.5.5 0 0 0 .708.708L8 8.707l3.146 3.147a.5.5 0 0 0 .708-.708L8.707 8l3.147-3.146z"/>\n'
-                    '</svg>\n')
+                file_index.write('<svg class="bi bi-x-octagon-fill text-danger" width="1.5em" height="1.5em" '
+                    'viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">\n'
+                    '<path fill-rule="evenodd" d="M11.46.146A.5.5 0 0 0 11.107 0H4.893a.5.5 0 0 0-.353.146L.146 '
+                    '4.54A.5.5 0 0 0 0 4.893v6.214a.5.5 0 0 0 .146.353l4.394 4.394a.5.5 0 0 0 .353.146h6.214a.5.5 '
+                    '0 0 0 .353-.146l4.394-4.394a.5.5 0 0 0 .146-.353V4.893a.5.5 0 0 0-.146-.353L11.46.146zm.394 '
+                    '4.708a.5.5 0 0 0-.708-.708L8 7.293 4.854 4.146a.5.5 0 1 0-.708.708L7.293 8l-3.147 3.146a.5.5 '
+                    '0 0 0 .708.708L8 8.707l3.146 3.147a.5.5 0 0 0 .708-.708L8.707 8l3.147-3.146z"/>\n</svg>\n')
+            
             file_index.write('</td>\n</tr>\n')
         return total_errors
 
@@ -159,7 +170,8 @@ class Doc:
                 '<div id="collapse%d" class="collapse hide" aria-labelledby="heading%d" data-parent="#accordion">\n'
                 '<div class="card-body">\n<div id="accordion1">\n'%(chap_detail['total_errors'],num_heading, num_heading))
             
-            self.formDetailSections(file_index, chap_detail['sections']) # Por cada capítulo obtenemos la lista de secciones
+            # Por cada capítulo obtenemos la lista de secciones
+            self.formDetailSections(file_index, chap_detail['sections']) 
             
             file_index.write('</div>\n</div>\n</div>\n</div>\n')    
         file_index.write('</div>\n</div>\n</div>\n')
@@ -178,21 +190,27 @@ class Doc:
             
             if section['total_errors'] > 0:
                 file_index.write('<div class="card border-danger mb-3">\n')
-                aux_typeCard = '%s<span class="badge badge-pill badge-danger text-center">%d</span>\n'%(aux_typeCard, section['total_errors'])
+                aux_typeCard = '%s<span class="badge badge-pill badge-danger text-center">%d</span>\n'%(aux_typeCard, 
+                    section['total_errors'])
             else:
                 file_index.write('<div class="card border-success mb-3">\n')
-                aux_typeCard = '%s<span class="badge badge-pill badge-success text-center">%d</span>\n'%(aux_typeCard, section['total_errors'])
+                aux_typeCard = '%s<span class="badge badge-pill badge-success text-center">%d</span>\n'%(aux_typeCard, 
+                    section['total_errors'])
             
             if ((len(section['subsections'][0]) == 0) and (section['total_errors'] == 0)):
                 file_index.write('<div class="card-header" id="subHeading%d">\n'
                     '%s     %s</div>\n</div>\n'%(self.num_subHeading, section['name_seq'], aux_typeCard))
             else:
                 file_index.write('<div class="card-header" id="subHeading%d">\n'
-                    '<button class="btn btn-outline-light" data-toggle="collapse" data-target="#subcollapse%d" aria-expanded="true" aria-controls="subcollapse%d">\n'
-                        '<svg class="bi bi-plus-square-fill text-dark" width="1.25em" height="1.25em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">\n'
-                        '<path fill-rule="evenodd" d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm6.5 4a.5.5 0 0 0-1 0v3.5H4a.5.5 0 0 0 0 1h3.5V12a.5.5 0 0 0 1 0V8.5H12a.5.5 0 0 0 0-1H8.5V4z"/>\n'
-                        '</svg>\n</button>\n%s     %s</div>\n<div id="subcollapse%d" class="collapse hide" aria-labelledby="subHeading%d" data-parent="#accordion1">\n'
-                        '<div class="card-body">\n'%(self.num_subHeading, self.num_subHeading, self.num_subHeading, section['name_seq'], aux_typeCard, self.num_subHeading, self.num_subHeading))
+                    '<button class="btn btn-outline-light" data-toggle="collapse" data-target="#subcollapse%d" '
+                    'aria-expanded="true" aria-controls="subcollapse%d">\n<svg class="bi bi-plus-square-fill '
+                    'text-dark" width="1.25em" height="1.25em" viewBox="0 0 16 16" fill="currentColor" '
+                    'xmlns="http://www.w3.org/2000/svg">\n<path fill-rule="evenodd" d="M2 0a2 2 0 0 0-2 2v12a2 '
+                    '2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm6.5 4a.5.5 0 0 0-1 0v3.5H4a.5.5 0 0 0 0 '
+                    '1h3.5V12a.5.5 0 0 0 1 0V8.5H12a.5.5 0 0 0 0-1H8.5V4z"/>\n</svg>\n</button>\n%s     %s</div>\n'
+                    '<div id="subcollapse%d" class="collapse hide" aria-labelledby="subHeading%d" '
+                    'data-parent="#accordion1">\n<div class="card-body">\n'%(self.num_subHeading, self.num_subHeading, 
+                        self.num_subHeading, section['name_seq'], aux_typeCard, self.num_subHeading, self.num_subHeading))
                 
                 # Si es que la sección contiene subsecciones
                 if len(section['subsections'][0]) != 0:
@@ -214,20 +232,28 @@ class Doc:
             aux_typeCard = ''
             if len(subsection['errors']) > 0:
                 file_index.write('<div class="card border-danger mb-3">\n')
-                aux_typeCard = '%s<span class="badge badge-pill badge-danger text-center">%d</span>\n'%(aux_typeCard, len(subsection['errors']))
+                aux_typeCard = '%s<span class="badge badge-pill badge-danger text-center">%d</span>\n'%(aux_typeCard, 
+                    len(subsection['errors']))
             else:
                 file_index.write('<div class="card border-success mb-3">\n')
-                aux_typeCard = '%s<span class="badge badge-pill badge-success text-center">%d</span>\n'%(aux_typeCard, len(subsection['errors']))
+                aux_typeCard = '%s<span class="badge badge-pill badge-success text-center">%d</span>\n'%(aux_typeCard, 
+                    len(subsection['errors']))
             if len(subsection['errors']) == 0:
                 file_index.write('<div class="card-header" id="subSectionHeading%d">\n'
                     '%s     %s</div>\n</div>\n'%(self.num_subSectionHeading, subsection['name_subseq'], aux_typeCard))
             else:
                 file_index.write('<div class="card-header" id="subSectionHeading%d">\n'
-                    '<button class="btn btn-outline-light" data-toggle="collapse" data-target="#subSectioncollapse%d" aria-expanded="true" aria-controls="subSectioncollapse%d">\n'
-                        '<svg class="bi bi-plus-square-fill text-dark" width="1.25em" height="1.25em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">\n'
-                        '<path fill-rule="evenodd" d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm6.5 4a.5.5 0 0 0-1 0v3.5H4a.5.5 0 0 0 0 1h3.5V12a.5.5 0 0 0 1 0V8.5H12a.5.5 0 0 0 0-1H8.5V4z"/>\n'
-                        '</svg>\n</button>\n%s     %s</div>\n<div id="subSectioncollapse%d" class="collapse hide" aria-labelledby="subSectionHeading%d" data-parent="#accordion1">\n'
-                        '<div class="card-body">\n'%(self.num_subSectionHeading, self.num_subSectionHeading, self.num_subSectionHeading, subsection['name_subseq'], aux_typeCard, self.num_subSectionHeading, self.num_subSectionHeading))
+                    '<button class="btn btn-outline-light" data-toggle="collapse" data-target="#subSectioncollapse%d" '
+                    'aria-expanded="true" aria-controls="subSectioncollapse%d">\n<svg class="bi bi-plus-square-fill '
+                    'text-dark" width="1.25em" height="1.25em" viewBox="0 0 16 16" fill="currentColor" '
+                    'xmlns="http://www.w3.org/2000/svg">\n<path fill-rule="evenodd" d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 '
+                    '2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm6.5 4a.5.5 0 0 0-1 0v3.5H4a.5.5 0 0 0 0 '
+                    '1h3.5V12a.5.5 0 0 0 1 0V8.5H12a.5.5 0 0 0 0-1H8.5V4z"/>\n</svg>\n</button>\n%s     %s</div>\n'
+                    '<div id="subSectioncollapse%d" class="collapse hide" aria-labelledby="subSectionHeading%d" '
+                    'data-parent="#accordion1">\n<div class="card-body">\n'%(self.num_subSectionHeading, 
+                        self.num_subSectionHeading, self.num_subSectionHeading, subsection['name_subseq'], aux_typeCard, 
+                        self.num_subSectionHeading, self.num_subSectionHeading))
+                
                 self.formListErrors(file_index, subsection['errors'])
                 file_index.write('</div>\n</div>\n</div>\n')
             
@@ -248,22 +274,32 @@ class Doc:
         """
         if list_errors:
             self.num_sectionErrors += 1
-            file_index.write('<div class="row">\n<div class="col-4">\n<div class="list-group" id="list-tab" role="tablist">\n')
+            file_index.write('<div class="row">\n<div class="col-4">\n<div class="list-group" id="list-tab" '
+                'role="tablist">\n')
             txt_tabContent = '<div class="tab-content" id="nav-tabContent">\n'
             num_errors = 0
             for error in list_errors:
                 nameError = error['errorName'].split(' ')[0]
                 txt_details = ''
                 if num_errors == 0:
-                    file_index.write('<a class="list-group-item d-flex justify-content-between align-items-center list-group-item-action list-group-item-info active" id="list-%s-list" data-toggle="list" href="#list-%s" role="tab" aria-controls="%s">%s\n'
-                        '<span class="badge badge-danger badge-pill">%d</span>\n</a>\n'%(nameError, nameError, nameError, error['errorName'], len(list_errors)))
-                    txt_tabContent = '%s<div class="tab-pane fade show active" id="list-%s" role="tabpanel" aria-labelledby="list-%s-list">'%(txt_tabContent, nameError, nameError)
+                    file_index.write('<a class="list-group-item d-flex justify-content-between align-items-center '
+                        'list-group-item-action list-group-item-info active" id="list-%s-list" data-toggle="list" '
+                        'href="#list-%s" role="tab" aria-controls="%s">%s\n<span class="badge badge-danger '
+                        'badge-pill">%d</span>\n</a>\n'%(nameError, nameError, nameError, error['errorName'], 
+                            len(list_errors)))
+                    
+                    txt_tabContent = '%s<div class="tab-pane fade show active" id="list-%s" role="tabpanel" \
+                        aria-labelledby="list-%s-list">'%(txt_tabContent, nameError, nameError)
                     num_errors+=1
                 else:
 
-                    file_index.write('<a class="list-group-item d-flex justify-content-between align-items-center list-group-item-action list-group-item-info" id="list-%s-list" data-toggle="list" href="#list-%s" role="tab" aria-controls="%s">%s\n'
-                        ' <span class="badge badge-danger badge-pill">%d</span>\n</a>\n'%(nameError, nameError, nameError, error['errorName'], len(list_errors)))
-                    txt_tabContent = '%s<div class="tab-pane fade" id="list-%s" role="tabpanel" aria-labelledby="list-%s-list">'%(txt_tabContent, nameError, nameError)
+                    file_index.write('<a class="list-group-item d-flex justify-content-between align-items-center '
+                        'list-group-item-action list-group-item-info" id="list-%s-list" data-toggle="list" '
+                        'href="#list-%s" role="tab" aria-controls="%s">%s\n<span class="badge badge-danger '
+                        'badge-pill">%d</span>\n</a>\n'%(nameError, nameError, nameError, error['errorName'], 
+                            len(list_errors)))
+                    txt_tabContent = '%s<div class="tab-pane fade" id="list-%s" role="tabpanel" \
+                        aria-labelledby="list-%s-list">'%(txt_tabContent, nameError, nameError)
                 
                 if error['errorName'] == 'contenido vacio':
                     txt_details = 'Solo se ha creado la sección pero no se ha ingresado contenido'
@@ -561,7 +597,8 @@ class Doc:
                 all_seq['('+s_name[-9:-4]+')'+sequ_name] = (str(sFile), all_dict)
 
                 if unpublished:
-                    print('\033[93m Warning: There are unpublished changes in published problems under subsection {}. Only looking at published version.\033[0m'.format(sequ_name))
+                    print('\033[93m Warning: There are unpublished changes in published problems under subsection {}. '
+                        'Only looking at published version.\033[0m'.format(sequ_name))
 
             else: #check draft
                 if s not in self.draft_problems_struct.keys():
@@ -681,21 +718,23 @@ class Doc:
                         weight = Dict['weight']
                         if 'max_attempts' in Dict.keys():
                             max_att = Dict['max_attempts']
-                            pub_prob[p_name] = {'file':pro_name, 'weight':Dict['weight'], 'max_attempts':Dict['max_attempts']}
+                            pub_prob[p_name] = {'file':pro_name, 'weight':Dict['weight'], 
+                                'max_attempts':Dict['max_attempts']}
                         else:
                             pub_prob[p_name] = {'file':pro_name, 'weight':Dict['weight']}
                 else:
                 
-                    number_seqErrorsUrl = 0 # posiblemente borrar
+                    number_seqErrorsUrl = 0 
                     list_seqUrlErrors = []
                     list_subSeqUrlErrors = []
-                
                     criterion_dictionary = self.checkUrls(file_adress)
+                    
                     if criterion_dictionary['urls']:
-                        number_errorsUrl = self.getNumberErrors(criterion_dictionary) # posiblemente borrar
+                        number_errorsUrl = self.getNumberErrors(criterion_dictionary) 
                         errors_urlList = self.getErrorsUrl(criterion_dictionary)
-                        number_seqErrorsUrl = number_errorsUrl # posiblemente borrar
+                        number_seqErrorsUrl = number_errorsUrl 
                         list_seqUrlErrors = errors_urlList
+                        
                         if 'errors' in self.tmp_subsectionsDict.keys():
                             list_subSeqUrlErrors = errors_urlList
                             criterio_dict = {'errorName': 'url con error', 'url':list_subSeqUrlErrors}
@@ -748,7 +787,6 @@ class Doc:
         
         return pub_prob, pro_list
 
-    # Obtener informacion de unidades
     def describeDraftUnit(self, unit, sequ_name):
         """
         Obtener la lista de unidades que contiene la seccion de anuncios.
@@ -843,6 +881,3 @@ if __name__ == "__main__":
         os.getcwd()
     writeDoc = Doc(os.getcwd())
     writeDoc.describeCourse()
- 
-
-
