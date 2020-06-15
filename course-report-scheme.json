@@ -6,11 +6,11 @@
   "status":{
     "requiredChapters":[
       {
-        "chapterName":"espacio colaborativo",
+        "requiredChapter":"espacio colaborativo",
         "isCreated": "True"
       }
     ],
-    "detailsChapters":[
+    "detailChapters":[
       {
         "chapterName": "Semana 1",
         "emptyContent": "False",
@@ -18,7 +18,9 @@
         "sections":[
           {
             "sectionName": "Objetivo de la semana",
+	    "emptyContent": "False",
             "errors":[],
+	    "totalErrors": "5",
             "subsections":[
               {
                 "subsectionName": "Definiciones bascias",
