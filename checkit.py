@@ -226,7 +226,7 @@ class Doc:
                 if len(section['subsections'][0]) != 0:
                     self.formDetailSubSections(file_index, section['subsections']) 
                 
-                self.formListErrors(file_index, section['errors'])
+                self.formListErrors(file_index, section['errors'],section['emptyContent'])
                 file_index.write('</div>\n</div>\n</div>\n')
     
     def formDetailSubSections(self, file_index, subSection_list):
@@ -265,10 +265,10 @@ class Doc:
                         self.num_subSectionHeading, self.num_subSectionHeading, subsection['subsectionName'], 
                         aux_typeCard, self.num_subSectionHeading, self.num_subSectionHeading))
                 
-                self.formListErrors(file_index, subsection['errors'])
+                self.formListErrors(file_index, subsection['errors'], subsection['emptyContent'])
                 file_index.write('</div>\n</div>\n</div>\n')
             
-    def formListErrors(self,file_index, list_errors):
+    def formListErrors(self,file_index, list_errors, emptyContent):
         """
         Establece la tabla de descripción de errores donde se define la siguiente estructura
             +------------+-----------------------+
@@ -283,6 +283,9 @@ class Doc:
         reporte en formato html.
         @param: list_errors: Listado de errores por cada unidad que contiene el curso
         """
+        if emptyContent:
+            list_errors.append({'errorName':'contenido vacio'})
+        
         if list_errors:
             self.num_sectionErrors += 1
             file_index.write('<div class="row">\n<div class="col-4">\n<div class="list-group" id="list-tab" '
@@ -544,7 +547,7 @@ class Doc:
         self.formMainCard(file_index)
         currentDate = datetime.now()
         self.courseReport['reportDate'] = str(currentDate.date())
-        self.courseReport['reportTime'] = str('%s:%s:%s'%(currentDate.hour, currentDate.minute,
+        self.courseReport['reportTime'] = str('%d:%d:%d'%(currentDate.hour, currentDate.minute,
             currentDate.second))
         self.courseReport['status']['detailChapters'] = self.detailChapters
         self.saveReportDB()
@@ -566,14 +569,16 @@ class Doc:
 
                 first_line = chap_txt[0]
                 chap_name = first_line.split('"')[1]
-                self.tmp_dictionary = {'chapterName': chap_name, 'emptyContent':False,'totalErrors': 0
+                self.tmp_dictionary = {'chapterName': chap_name, 'emptyContent': False,'totalErrors': 0
                     ,'sections':[]}
+                
                 if chap_name.lower() in ['espacio colaborativo','espacios colaborativo', 'collaborative space']:
                     self.number_sectionErrors = 0
 
 
                 # eliminar el item inicial
                 seq_list = [l.split('"')[1] for l in chap_txt if "sequential" in l]
+                
                 if not seq_list:
                     self.tmp_dictionary['emptyContent'] = True
                 
@@ -612,24 +617,21 @@ class Doc:
             if len(seq_txt) > 2:
                 unit_list = [l.split('"')[1] for l in seq_txt if "vertical" in l]
                 
-                if not unit_list:
-                    self.seqDetails_dict['emptyContent'] =  True
-                else:
-                    pub_dict, all_dict = self.describeUnit(unit_list, sequ_name)
-                    pub_seq[sequ_name] = pub_dict
+                pub_dict, all_dict = self.describeUnit(unit_list, sequ_name)
+                pub_seq[sequ_name] = pub_dict
 
-                    if s in self.draft_problems_struct.keys():
+                if s in self.draft_problems_struct.keys():
 
-                        old_list = self.draft_problems_struct[s][:]
-                        for u in old_list:
-                            u_id = u[0].split('/')[-1].split('.xml')[0]
-                            if u_id in unit_list:
-                                unpublished = True
-                                self.draft_problems_struct[s].remove(u)
-                        if self.draft_problems_struct[s]:
-                            all_dict2 = self.describeDraftUnit(self.draft_problems_struct[s], sequ_name)
-                            for d in all_dict2:
-                                all_dict[d] = all_dict2[d]
+                    old_list = self.draft_problems_struct[s][:]
+                    for u in old_list:
+                        u_id = u[0].split('/')[-1].split('.xml')[0]
+                        if u_id in unit_list:
+                            unpublished = True
+                            self.draft_problems_struct[s].remove(u)
+                    if self.draft_problems_struct[s]:
+                        all_dict2 = self.describeDraftUnit(self.draft_problems_struct[s], sequ_name)
+                        for d in all_dict2:
+                            all_dict[d] = all_dict2[d]
                     
                     all_seq['('+s_name[-9:-4]+')'+sequ_name] = (str(sFile), all_dict)
 
@@ -698,11 +700,8 @@ class Doc:
                     # Para validar contenido vacio de subsecctionaes
                     if 'errors' in self.tmp_subsectionsDict.keys():
                         self.tmp_subsectionsDict['emptyContent'] = True
-                        criterio_dict = {'errorName': 'contenido vacio', 'subSeqName': u_name}
-                        self.tmp_subsectionsDict['errors'].append(criterio_dict)
                     else:
-                        criterio_dict = {'errorName': 'contenido vacio', 'status': True}
-                        self.seqDetails_dict['errors'].append(criterio_dict)
+                        self.seqDetails_dict['emptyContent'] = True
 
             tmp_subsectionsList.append(self.tmp_subsectionsDict)
         
@@ -763,7 +762,7 @@ class Doc:
                         else:
                             pub_prob[p_name] = {'file':pro_name, 'weight':Dict['weight']}
                 else:
-                    
+                    '''
                     number_seqErrorsUrl = 0 
                     list_seqUrlErrors = []
                     list_subSeqUrlErrors = []
@@ -785,6 +784,7 @@ class Doc:
                         self.number_urlErrors += number_errorsUrl
                     
                     self.seqDetails_dict['totalErrors'] +=  number_seqErrorsUrl
+                    '''
                 pro_list.append((str(pFile), pro[0]))
                 
             
@@ -792,7 +792,7 @@ class Doc:
                 pro_name = pro[1]+'.xml'
                 pFile = self.path / pro[0] / pro_name
                 file_adress = self.path / pro[0] / pro_name
-                
+                '''
                 number_seqErrorsVideo = 0
                 number_subSeqErrorsVideo = 0
                 list_seqVideoErrors = []
@@ -811,7 +811,7 @@ class Doc:
                     self.number_videoErrors += 1
                 
                 self.seqDetails_dict['totalErrors'] += number_seqErrorsVideo
-                
+                '''
 
             elif pro[0] == 'problem':
                 letters = list(range(97,123))
@@ -889,7 +889,7 @@ class Doc:
             if pro[0] == 'problem':
                 pass
             else:
-                
+                '''
                 number_seqErrorsUrl = 0
                 list_seqUrlErrors = []
                 list_subSeqUrlErrors = []
@@ -909,7 +909,7 @@ class Doc:
                     self.number_urlErrors += number_errorsUrl
                 
                 self.seqDetails_dict['totalErrors'] +=  number_seqErrorsUrl
-            
+                '''
             prob_list.append((str(pFile), '(draft)'+pro[0]))
             
         if number_errorsUrl > 0:
