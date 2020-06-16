@@ -1,23 +1,24 @@
-# Archivo de configuración para ejecución de servicios dentro del Script
+# Archivo de configuración para ejecución de los servicios implementados dentro del Script
 # Las opciones disponibles son: 
   # * Verificar la existencia de una seccion denominada "espacio colaborativo.
   # * Analizar el curso para capitulos, secciones o subsecciones que no possen contenido
   # * Verificar la existencia y validez de todas las urls que se encuentren en el curso
   # * Verificar los enlaces a videos externos que no se encuentren con errores. 
   # * Analizar que los archivos en formato pdf se encuentren disponibles.
-# Nota: Para esto debe mantener los el valor 'true' en la variable 'value'. O si desea que alguna de estas opciones se descarte debe cambiar el valor por 'false'
+# Nota: Para esto debe mantener los el valor 'true' en la variable 'value'. O si desea que alguna de estas opciones se descarte debe cambiar el valor por 'false'.
+# Nota: El proceso de análisis de 'url_error' y 'video_error' puede requerir un tiempo prudencial, dependiendo de su velocidad de conexion a internet y el numero de recursos a validar.
 
 # En este apartado podra ingresar una introduccion que se presente al inicio de la tabla resumen de losresultados del analisis del curso.
-Introduction:
+introduction:
   text: 'Esta es la introduccion'
 
 # En esta opcion usted puede seleccionar que apartados desea que se analicen en su curso OPENEDX. 
-Services:
+services:
 
-  Secciones_obligatorias: # Nombre de los capitulos obligatorios en el curso.
+  secciones_obligatorias: # Nombre de los capitulos obligatorios en el curso.
   - espacio colaborativo 
 
-  Validacion_de_contenido: 
+  validacion_de_contenido: 
 
   - contenido_vacio:
       name: contenido vacio # Nombre a mostrar en la tabla y detalle de errores del curso
@@ -25,11 +26,11 @@ Services:
   
   - url_error:
       name: urls con error # Nombre a mostrar en la tabla y detalle de errores del curso
-      value: true # Si es 'true' se valida el estado de todas las url que se detallan cada capitulo, seccion o subseccion del curso. 
+      value: false # Si es 'true' se valida el estado de todas las url que se detallan cada capitulo, seccion o subseccion del curso. 
   
   - video_error:
       name: videos con error # Nombre a mostrar en la tabla y detalle de errores del curso
-      value: true # Si es 'true' se valida el estado de cada video que se detalla en cada capitulo, seccion o subseccion del curso.
+      value: false # Si es 'true' se valida el estado de cada video que se detalla en cada capitulo, seccion o subseccion del curso.
   
   - pdf_error:
       name: pdf con error # Nombre a mostrar en la tabla y detalle de errores del curso

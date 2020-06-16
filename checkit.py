@@ -53,17 +53,20 @@ class Doc:
     def setConfigCourse(self):
         """
         Establece los criterios que se van a evualuar que se encuentran detallados en 
-        el archivo config.yml
+        el archivo config.yml.
+        Establece las secciones obligatorias definidas en el arhivo config.yml
         """
         with open('config.yml') as file:
             configuration_file = yaml.load(file, Loader=yaml.FullLoader)
-            '''
-            if configuration_file['Services']['Secciones_obligatorias']:
-                self.criteria_list.append('')
-            '''
-            self.introduction = configuration_file['Introduction']['text']
-            if configuration_file['Services']['Validacion_de_contenido']:
-                for criteria in configuration_file['Services']['Validacion_de_contenido']:
+            
+            if configuration_file['services']['secciones_obligatorias']:
+                for required_section in configuration_file['services']['secciones_obligatorias']:
+                    self.requiredChatpers_list.append({'requiredChapter':required_section.lower(),
+                        'isCreated': False})
+
+            self.introduction = configuration_file['introduction']['text']
+            if configuration_file['services']['validacion_de_contenido']:
+                for criteria in configuration_file['services']['validacion_de_contenido']:
                     for value in criteria:
                         if criteria[value]['value']:
                             criteria[value]['variableName'] = value
@@ -72,6 +75,9 @@ class Doc:
                             self.criteria_list.append(criteria[value])
     
     def setTotalErrors(self):
+        """
+        Establece el numero de errores de cada criterio analizado.
+        """
         for criterion in self.criteria_list:
             if criterion['variableName'] =='contenido_vacio':
                 criterion['errors'] = self.number_emptyContent
@@ -143,12 +149,33 @@ class Doc:
         reporte en formato html.
         @return: total_errors: Numero total de errores del curso
         """
-        total_errors = 0 
+        total_errors = 0
+        for required_section in self.requiredChatpers_list:
+            txt_resume = ''
+            if required_section['isCreated']:
+                txt_resume = ('<svg class="bi bi-check-circle-fill text-success" width="1.5em" height="1.5em" '
+                    'viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">\n'
+                    '<path fill-rule="evenodd" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 '
+                    '0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 '
+                    '1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>\n</svg>\n')
+            else:
+                total_errors += 1
+                txt_resume = ('<svg class="bi bi-x-octagon-fill text-danger" width="1.5em" height="1.5em" '
+                    'viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">\n'
+                    '<path fill-rule="evenodd" d="M11.46.146A.5.5 0 0 0 11.107 0H4.893a.5.5 0 0 0-.353.146L.146 '
+                    '4.54A.5.5 0 0 0 0 4.893v6.214a.5.5 0 0 0 .146.353l4.394 4.394a.5.5 0 0 0 .353.146h6.214a.5.5 '
+                    '0 0 0 .353-.146l4.394-4.394a.5.5 0 0 0 .146-.353V4.893a.5.5 0 0 0-.146-.353L11.46.146zm.394 '
+                    '4.708a.5.5 0 0 0-.708-.708L8 7.293 4.854 4.146a.5.5 0 1 0-.708.708L7.293 8l-3.147 3.146a.5.5 '
+                    '0 0 0 .708.708L8 8.707l3.146 3.147a.5.5 0 0 0 .708-.708L8.707 8l3.147-3.146z"/>\n</svg>\n')
+            file_index.write('<tr>\n<th scope="row">%s</th>\n<td>%s</td>\n<td>\n'%(total_errors, 
+                required_section['requiredChapter']))
+            
+            file_index.write('%s</td>\n</tr>\n'%txt_resume)
+        total_errors = 0
         for criterion in self.criteria_list:
             total_errors += criterion['errors']
             file_index.write('<tr>\n<th scope="row">%s</th>\n<td>%s</td>\n<td>\n'%(criterion['errors'], 
                 criterion['name']))
-            
             if criterion['errors'] == 0:
                 file_index.write('<svg class="bi bi-check-circle-fill text-success" width="1.5em" height="1.5em" '
                     'viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">\n'
@@ -340,7 +367,7 @@ class Doc:
                 
                 elif error['errorName'] == 'url con error' or error['errorName'] == 'videos con error':
                     for url in error['urls']:
-                        txt_details = '%s<li>%s\n'%(txt_details, url)
+                        txt_details = '%s<li><a href="%s">%s</a></li>\n'%(txt_details, url, url)
 
                 txt_tabContent = '%s%s\n</div>'%(txt_tabContent,txt_details)
             file_index.write('</div>\n</div>\n<div class="col-8">\n%s\n</div>\n</div>\n</div>\n'%txt_tabContent)
@@ -534,6 +561,8 @@ class Doc:
 
         self.variable_list = [] # lista de variables a analizar
 
+        self.requiredChatpers_list = []
+
         ## Estructura de secciones y unidades
         self.draft_problems_struct = OrderedDict()
         self.public_problems_struct = OrderedDict()
@@ -591,13 +620,12 @@ class Doc:
                 chap_name = first_line.split('"')[1]
                 self.tmp_dictionary = {'chapterName': chap_name, 'emptyContent': False,'totalErrors': 0
                     ,'sections':[]}
-                
-                '''
-                if chap_name.lower() in ['espacio colaborativo','espacios colaborativo', 'collaborative space']:
-                    self.number_sectionErrors = 0
-                '''
-
-
+                # Ver si las secciones especificadas como obligatorias se encuentran creadas.
+                if self.requiredChatpers_list:
+                    for required_section in self.requiredChatpers_list:
+                        if chap_name.lower() == required_section['requiredChapter']:
+                            required_section['isCreated'] = True
+            
                 # eliminar el item inicial
                 seq_list = [l.split('"')[1] for l in chap_txt if "sequential" in l]
                 
@@ -713,17 +741,18 @@ class Doc:
                     prob = l.split('"')[1]
                     prob_list.append(['html', prob])
             
-            if(u_name.lower() != 'encuesta de satisfacción'):
-                if not prob_list:
-                    number_sectionErrors += 1
-                    self.tmp_dictionary['totalErrors'] += number_sectionErrors
-                    self.number_emptyContent += 1
-                    self.seqDetails_dict['totalErrors'] += number_sectionErrors
-                    # Para validar contenido vacio de subsecctionaes
-                    if 'errors' in self.tmp_subsectionsDict.keys():
-                        self.tmp_subsectionsDict['emptyContent'] = True
-                    else:
-                        self.seqDetails_dict['emptyContent'] = True
+            if 'contenido_vacio' in self.variable_list:
+                if(u_name.lower() != 'encuesta de satisfacción'):
+                    if not prob_list:
+                        number_sectionErrors += 1
+                        self.tmp_dictionary['totalErrors'] += number_sectionErrors
+                        self.number_emptyContent += 1
+                        self.seqDetails_dict['totalErrors'] += number_sectionErrors
+                        # Para validar contenido vacio de subsecctionaes
+                        if 'errors' in self.tmp_subsectionsDict.keys():
+                            self.tmp_subsectionsDict['emptyContent'] = True
+                        else:
+                            self.seqDetails_dict['emptyContent'] = True
 
             tmp_subsectionsList.append(self.tmp_subsectionsDict)
         
@@ -753,7 +782,7 @@ class Doc:
         error_videoList = []
 
         for pro in prob_list:
-            if pro[0] == 'html': # Condicion para ver si el archivo es un html
+            if (pro[0] == 'html') and ('url_error' in self.variable_list): # Condicion para ver si el archivo es un html
                 pro_name = pro[1]+'.xml'
                 pro_name_html = pro[1]+'.html' # obtener el arhivo html
                 
@@ -784,7 +813,6 @@ class Doc:
                         else:
                             pub_prob[p_name] = {'file':pro_name, 'weight':Dict['weight']}
                 else:
-                    '''
                     number_seqErrorsUrl = 0 
                     list_seqUrlErrors = []
                     list_subSeqUrlErrors = []
@@ -806,15 +834,15 @@ class Doc:
                         self.number_urlErrors += number_errorsUrl
                     
                     self.seqDetails_dict['totalErrors'] +=  number_seqErrorsUrl
-                    '''
+                    
                 pro_list.append((str(pFile), pro[0]))
                 
             
-            elif pro[0] == 'video':
+            elif (pro[0] == 'video') and ('video_error' in self.variable_list):
                 pro_name = pro[1]+'.xml'
                 pFile = self.path / pro[0] / pro_name
                 file_adress = self.path / pro[0] / pro_name
-                '''
+
                 number_seqErrorsVideo = 0
                 number_subSeqErrorsVideo = 0
                 list_seqVideoErrors = []
@@ -833,7 +861,6 @@ class Doc:
                     self.number_videoErrors += 1
                 
                 self.seqDetails_dict['totalErrors'] += number_seqErrorsVideo
-                '''
 
             elif pro[0] == 'problem':
                 letters = list(range(97,123))
@@ -911,27 +938,27 @@ class Doc:
             if pro[0] == 'problem':
                 pass
             else:
-                '''
-                number_seqErrorsUrl = 0
-                list_seqUrlErrors = []
-                list_subSeqUrlErrors = []
-                criterion_dictionary = self.checkUrls(file_adress)
-                if criterion_dictionary['urls']:
-                    number_errorsUrl = self.getNumberErrors(criterion_dictionary)
-                    errors_urlList = self.getErrorsUrl(criterion_dictionary)
-                    number_seqErrorsUrl = number_errorsUrl
-                    list_seqUrlErrors = errors_urlList
-                    if 'errors' in self.tmp_subsectionsDict.keys():
-                        list_subSeqUrlErrors = errors_urlList
-                        criterio_dict = {'errorName': 'url con error', 'urls':list_subSeqUrlErrors}
-                        self.tmp_subsectionsDict['errors'].append(criterio_dict)
-                    else:
-                        criterio_dict = {'errorName': 'url con error', 'urls': list_seqUrlErrors}
-                        self.seqDetails_dict['errors'].append(criterio_dict)
-                    self.number_urlErrors += number_errorsUrl
-                
-                self.seqDetails_dict['totalErrors'] +=  number_seqErrorsUrl
-                '''
+                if 'url_error' in self.variable_list:
+                    number_seqErrorsUrl = 0
+                    list_seqUrlErrors = []
+                    list_subSeqUrlErrors = []
+                    criterion_dictionary = self.checkUrls(file_adress)
+                    if criterion_dictionary['urls']:
+                        number_errorsUrl = self.getNumberErrors(criterion_dictionary)
+                        errors_urlList = self.getErrorsUrl(criterion_dictionary)
+                        number_seqErrorsUrl = number_errorsUrl
+                        list_seqUrlErrors = errors_urlList
+                        if 'errors' in self.tmp_subsectionsDict.keys():
+                            list_subSeqUrlErrors = errors_urlList
+                            criterio_dict = {'errorName': 'url con error', 'urls':list_subSeqUrlErrors}
+                            self.tmp_subsectionsDict['errors'].append(criterio_dict)
+                        else:
+                            criterio_dict = {'errorName': 'url con error', 'urls': list_seqUrlErrors}
+                            self.seqDetails_dict['errors'].append(criterio_dict)
+                        self.number_urlErrors += number_errorsUrl
+                    
+                    self.seqDetails_dict['totalErrors'] +=  number_seqErrorsUrl
+
             prob_list.append((str(pFile), '(draft)'+pro[0]))
             
         if number_errorsUrl > 0:
