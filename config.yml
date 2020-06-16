@@ -10,7 +10,7 @@
 
 # En este apartado podra ingresar una introduccion que se presente al inicio de la tabla resumen de losresultados del analisis del curso.
 introduction:
-  text: 'Esta es la introduccion'
+  text: Reporte del estado actual en el que se encuentra el curso de openCampus. A continuación se presenta la tabla de resumen con el numero de errores, criterios validados y el estado de cada criterio.
 
 # En esta opcion usted puede seleccionar que apartados desea que se analicen en su curso OPENEDX. 
 services:
@@ -26,11 +26,11 @@ services:
   
   - url_error:
       name: urls con error # Nombre a mostrar en la tabla y detalle de errores del curso
-      value: false # Si es 'true' se valida el estado de todas las url que se detallan cada capitulo, seccion o subseccion del curso. 
+      value: true # Si es 'true' se valida el estado de todas las url que se detallan cada capitulo, seccion o subseccion del curso. 
   
   - video_error:
       name: videos con error # Nombre a mostrar en la tabla y detalle de errores del curso
-      value: false # Si es 'true' se valida el estado de cada video que se detalla en cada capitulo, seccion o subseccion del curso.
+      value: true # Si es 'true' se valida el estado de cada video que se detalla en cada capitulo, seccion o subseccion del curso.
   
   - pdf_error:
       name: pdf con error # Nombre a mostrar en la tabla y detalle de errores del curso
