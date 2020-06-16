@@ -11,7 +11,7 @@ Luego instale el script
 ### 2. Use ckeckit.py
 * Exporte el curso de edX
 * Descomprima el archivo .tar.gz 
-* Copie el archivo ``config.txt`` en el curso descomprido
+* Copie el archivo ``config.yml`` en el curso descomprido
 * Ejecute ckeckit.py
 
 		checkit.py

@@ -330,8 +330,10 @@ class Doc:
         reporte en formato html.
         @param: list_errors: Listado de errores por cada unidad que contiene el curso
         """
+        value_emptyContent = False
         if emptyContent:
             list_errors.append({'errorName':'contenido vacio'})
+            value_emptyContent = True
         
         if list_errors:
             self.num_sectionErrors += 1
@@ -371,6 +373,11 @@ class Doc:
 
                 txt_tabContent = '%s%s\n</div>'%(txt_tabContent,txt_details)
             file_index.write('</div>\n</div>\n<div class="col-8">\n%s\n</div>\n</div>\n</div>\n'%txt_tabContent)
+
+            if value_emptyContent:
+                list_errors.pop(-1)
+
+
     
 
     def checkUrls(self, file_adress):
@@ -598,8 +605,9 @@ class Doc:
         self.courseReport['reportDate'] = str(currentDate.date())
         self.courseReport['reportTime'] = str('%d:%d:%d'%(currentDate.hour, currentDate.minute,
             currentDate.second))
+        self.courseReport['status']['requiredChapters'] = self.requiredChatpers_list
         self.courseReport['status']['detailChapters'] = self.detailChapters
-        # self.saveReportDB()
+        self.saveReportDB()
         file_index.close()
 
     def describeChapter(self):
