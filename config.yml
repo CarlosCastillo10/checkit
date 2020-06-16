@@ -9,15 +9,15 @@
 
 # En este apartado podra ingresar una introduccion que se presente al inicio de la tabla resumen de losresultados del analisis del curso.
 Introduction:
-  texto: 'Esta es la introduccion'
+  text: 'Esta es la introduccion'
 
 # En esta opcion usted puede seleccionar que apartados desea que se analicen en su curso OPENEDX. 
 Services:
 
-- Secciones obligatorias: # Nombre de los capitulos obligatorios en el curso.
+  Secciones_obligatorias: # Nombre de los capitulos obligatorios en el curso.
   - espacio colaborativo 
 
-- Validacion de contenido: 
+  Validacion_de_contenido: 
 
   - contenido_vacio:
       name: contenido vacio # Nombre a mostrar en la tabla y detalle de errores del curso

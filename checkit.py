@@ -14,6 +14,7 @@ import pafy
 import httplib2 
 import html 
 import couchdb
+import yaml
 
 
 class Doc:
@@ -52,14 +53,33 @@ class Doc:
     def setConfigCourse(self):
         """
         Establece los criterios que se van a evualuar que se encuentran detallados en 
-        el archivo config.txt
+        el archivo config.yml
         """
-        file = open('config.txt', 'r')
-        for line in file:
-            if (line and line.strip()):   
-                criteria_dict = {'criteriaName':line.replace('\n',''), 'errors': 0}
-                self.criteria_list.append(criteria_dict)
-        
+        with open('config.yml') as file:
+            configuration_file = yaml.load(file, Loader=yaml.FullLoader)
+            '''
+            if configuration_file['Services']['Secciones_obligatorias']:
+                self.criteria_list.append('')
+            '''
+            self.introduction = configuration_file['Introduction']['text']
+            if configuration_file['Services']['Validacion_de_contenido']:
+                for criteria in configuration_file['Services']['Validacion_de_contenido']:
+                    for value in criteria:
+                        if criteria[value]['value']:
+                            criteria[value]['variableName'] = value
+                            criteria[value]['errors'] = 0
+                            self.variable_list.append(value)
+                            self.criteria_list.append(criteria[value])
+    
+    def setTotalErrors(self):
+        for criterion in self.criteria_list:
+            if criterion['variableName'] =='contenido_vacio':
+                criterion['errors'] = self.number_emptyContent
+            elif criterion['variableName'] =='url_error':
+                criterion['errors'] = self.number_urlErrors
+            elif criterion['variableName'] =='video_error':
+                criterion['errors'] = self.number_videoErrors   
+    
     def formMainCard(self, file_index):
         """
         Genera la estructura básica del html, agregando los estilos de bootstrap.
@@ -97,9 +117,9 @@ class Doc:
         file_index.write('<div class="card bg-transparent border-success mb-5">\n<div class="card-header text-center '
             'bg-success border-success text-white">RESUMEN</div>\n<div class="card-body">\n'
             '<div class="table-responsive-sm">\n<table class="table table-sm table-hover">\n'
-            '<p class="card-text text-dark">Aqui escribir algo</p>\n<thead class="table-success">\n<tr>\n'
+            '<p class="card-text text-dark">%s</p>\n<thead class="table-success">\n<tr>\n'
             '<th scope="col"># Errores</th>\n<th scope="col">Criterio</th>\n'
-            '<th scope="col">Estado</th>\n</tr>\n</thead>\n<tbody>\n')
+            '<th scope="col">Estado</th>\n</tr>\n</thead>\n<tbody>\n'%self.introduction)
         
         total_errors = self.formResumeTable(file_index)
         file_index.write('</tbody>\n<caption>Total errores: %d\n</table>\n</div>\n</div>\n</div>\n'%total_errors)
@@ -127,7 +147,7 @@ class Doc:
         for criterion in self.criteria_list:
             total_errors += criterion['errors']
             file_index.write('<tr>\n<th scope="row">%s</th>\n<td>%s</td>\n<td>\n'%(criterion['errors'], 
-                criterion['criteriaName']))
+                criterion['name']))
             
             if criterion['errors'] == 0:
                 file_index.write('<svg class="bi bi-check-circle-fill text-success" width="1.5em" height="1.5em" '
@@ -487,6 +507,7 @@ class Doc:
         # Varibales str
         self.url_video = ''
         self.course_title = ''
+        self.introduction = ''
 
         # Variables de Path
         self.path = Path(start_path)
@@ -510,6 +531,8 @@ class Doc:
         self.chapter_list = [] # lista de capitulos
 
         self.criteria_list = [] # lista de criterios
+
+        self.variable_list = [] # lista de variables a analizar
 
         ## Estructura de secciones y unidades
         self.draft_problems_struct = OrderedDict()
@@ -540,17 +563,14 @@ class Doc:
         file_index = open(str(self.path)+'/course-report/index.html','w') # Crear archivo 'index.html'
         self.setConfigCourse()
         self.describeChapter()
-        self.criteria_list[0]['errors'] = self.number_sectionErrors
-        self.criteria_list[1]['errors'] = self.number_urlErrors
-        self.criteria_list[2]['errors'] = self.number_videoErrors
-        self.criteria_list[3]['errors'] = self.number_emptyContent
+        self.setTotalErrors()
         self.formMainCard(file_index)
         currentDate = datetime.now()
         self.courseReport['reportDate'] = str(currentDate.date())
         self.courseReport['reportTime'] = str('%d:%d:%d'%(currentDate.hour, currentDate.minute,
             currentDate.second))
         self.courseReport['status']['detailChapters'] = self.detailChapters
-        self.saveReportDB()
+        # self.saveReportDB()
         file_index.close()
 
     def describeChapter(self):
@@ -572,8 +592,10 @@ class Doc:
                 self.tmp_dictionary = {'chapterName': chap_name, 'emptyContent': False,'totalErrors': 0
                     ,'sections':[]}
                 
+                '''
                 if chap_name.lower() in ['espacio colaborativo','espacios colaborativo', 'collaborative space']:
                     self.number_sectionErrors = 0
+                '''
 
 
                 # eliminar el item inicial
