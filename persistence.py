@@ -1,5 +1,5 @@
 """
-    script que se encarga de guardar el reporte en la base de datos NoSQL couchDB
+  script que se encarga de guardar el reporte en la base de datos NoSQL couchDB.
 """
 import sys
 

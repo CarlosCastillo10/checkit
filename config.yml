@@ -10,7 +10,7 @@
 
 # En este apartado podra ingresar una introduccion que se presente al inicio de la tabla resumen de losresultados del analisis del curso.
 introduction:
-  text: Reporte del estado actual en el que se encuentra el curso de openCampus. A continuación se presenta la tabla de resumen con el numero de errores, criterios validados y el estado de cada criterio.
+  text: Reporte del estado actual en el que se encuentra el curso de openCampus. A continuación se presenta la tabla de resumen con el numero de errores, criterios evaluados y el estado de cada criterio.
 
 # En esta opcion usted puede seleccionar que apartados desea que se analicen en su curso OPENEDX. 
 services:
