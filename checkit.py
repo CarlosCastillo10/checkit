@@ -4,17 +4,17 @@ from pathlib import Path
 from collections import defaultdict
 from collections import OrderedDict
 from datetime import datetime
+from shutil import rmtree
 import re
 import sys
 import unicodedata
 import xml.etree.ElementTree as ET 
-from shutil import rmtree
 import os, fnmatch
 import pafy
 import httplib2 
 import html 
-import couchdb
 import yaml
+import persistence
 
 
 class Doc:
@@ -65,6 +65,7 @@ class Doc:
                         'isCreated': False})
 
             self.introduction = configuration_file['introduction']['text']
+            
             if configuration_file['services']['validacion_de_contenido']:
                 for criteria in configuration_file['services']['validacion_de_contenido']:
                     for value in criteria:
@@ -73,6 +74,10 @@ class Doc:
                             criteria[value]['errors'] = 0
                             self.variable_list.append(value)
                             self.criteria_list.append(criteria[value])
+            
+            if configuration_file['couchDB_setup']:
+                if configuration_file['couchDB_setup']['value']:
+                    self.couchDB_setup = configuration_file['couchDB_setup']
     
     def setTotalErrors(self):
         """
@@ -377,9 +382,6 @@ class Doc:
             if value_emptyContent:
                 list_errors.pop(-1)
 
-
-    
-
     def checkUrls(self, file_adress):
         """
         Genera un diccionario con el detalle de urls que contiene cada unidad del curso
@@ -486,14 +488,6 @@ class Doc:
             video_status = False
         return video_status
 
-    def saveReportDB(self):
-        """
-        Guarda en la base en datos en el reporte total del curso
-        """
-        couchServer = couchdb.Server('http://openCampus:openCampus@127.0.0.1:5984')
-        db = couchServer['course-report']
-        db.save(self.courseReport)
-
     def __makeDraftStruct(self):
         """
         Obtener la estructura del curso
@@ -579,6 +573,7 @@ class Doc:
         self.seq_Details_list = []
         self.seqDetails_dict  = {}
         self.tmp_subsectionsDict = {}
+        self.couchDB_setup = {}
 
         self.courseReport = {'courseID': '','courseName':'','reportDate': '',
             'reportTime':'','status':{}}
@@ -607,7 +602,13 @@ class Doc:
             currentDate.second))
         self.courseReport['status']['requiredChapters'] = self.requiredChatpers_list
         self.courseReport['status']['detailChapters'] = self.detailChapters
-        self.saveReportDB()
+
+        # Invocar al modulo 'persitence'
+        if self.couchDB_setup:
+            persistence.Persistence(self.courseReport, self.couchDB_setup)
+        else:
+            print('\033[93m\nLa opción de guardar en couchDB se encuentra deshabilitada\n')
+        
         file_index.close()
 
     def describeChapter(self):
