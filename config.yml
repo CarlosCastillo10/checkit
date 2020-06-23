@@ -38,9 +38,9 @@ services:
 
 couchDB_setup:
   value: true  # Si es 'true' se guarda la informacion en la base de datos NoSQL couchDB.
-  username:  # usuario registrado en couchDB
-  password:  # Contraseña del usuario registrado en couchDB
+  username: openCampus # usuario registrado en couchDB
+  password: openCampus # Contraseña del usuario registrado en couchDB
   domain: 127.0.0.1 # dirección IP del localhost
   port: 5984 # Puerto que escucha por defecto couchDB
-  database_name: # Nombre de la base de datos
+  database_name: course-report # Nombre de la base de datos
   
