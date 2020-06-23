@@ -37,7 +37,7 @@ class Persistence:
         
         # Si el usuario o la contraseña son incorrectos
         except couchdb.http.Unauthorized:
-            print('\033[91m\nError de autenticación (Usuario o contraseña incorrecto)\n')
+            print('\033[91m\nError de autenticación (<username> o <password> incorrecto)\n')
         
         # Si la dirección IP del localhost no es correcta
         except OSError:
@@ -47,3 +47,6 @@ class Persistence:
         except couchdb.http.ResourceNotFound:
             print('\033[91m\nRecurso no encontrado (Compruebe si el nombre de la base de datos es '
                 'correcto, o si la base de datos existe)\n')
+        
+        except TypeError:
+            print('\033[91m\nError: Valor incorrecto (Debe ingresar el nombre de la base de datos en el atributo <database_name>)\n')

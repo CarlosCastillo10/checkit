@@ -37,7 +37,7 @@ class Doc:
         Obtiene el id y el nombre del curso que se encuentra en course.xml.
         Establece la fecha y la hora de la generación del reporte
         """
-        treeID = ET.parse('course.xml')
+        treeID = ET.parse('%s/course.xml'%self.path)
         rootID = treeID.getroot()
         
         treeName = ET.parse(str(self.course_file))
@@ -49,7 +49,6 @@ class Doc:
         if 'display_name' in rootName.attrib:
             self.course_title = (rootName.attrib['display_name']).upper()
             self.courseReport['courseName'] = (rootName.attrib['display_name']) # Nuevo
-        
     def setConfigCourse(self):
         """
         Establece los criterios que se van a evualuar que se encuentran detallados en 
@@ -538,7 +537,7 @@ class Doc:
         self.introduction = ''
 
         # Variables de Path
-        self.path = Path(start_path)
+        self.path = Path('../course/')
         self.course_path = self.path / 'course'
         self.chapter_path = self.path / 'chapter'
         self.seq_path = self.path / 'sequential'
@@ -578,12 +577,12 @@ class Doc:
         self.courseReport = {'courseID': '','courseName':'','reportDate': '',
             'reportTime':'','status':{}}
        
-
+        
         self.__makeCourse()
-
+        
         if self.draft_path.exists() and self.draft_vert_path.exists():
             self.__makeDraftStruct()
-            
+
     def describeCourse(self):
         
         if os.path.isdir('%s/course-report'%self.path):
@@ -602,13 +601,13 @@ class Doc:
             currentDate.second))
         self.courseReport['status']['requiredChapters'] = self.requiredChatpers_list
         self.courseReport['status']['detailChapters'] = self.detailChapters
-
+        
         # Invocar al modulo 'persitence'
         if self.couchDB_setup:
             persistence.Persistence(self.courseReport, self.couchDB_setup)
         else:
             print('\033[93m\nLa opción de guardar en couchDB se encuentra deshabilitada\n')
-        
+    
         file_index.close()
 
     def describeChapter(self):
