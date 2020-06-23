@@ -26,11 +26,11 @@ services:
   
   - url_error:
       name: urls con error # Nombre a mostrar en la tabla y detalle de errores del curso
-      value: false # Si es 'true' se valida el estado de todas las url que se detallan cada capitulo, seccion o subseccion del curso. 
+      value: true # Si es 'true' se valida el estado de todas las url que se detallan cada capitulo, seccion o subseccion del curso. 
   
   - video_error:
       name: videos con error # Nombre a mostrar en la tabla y detalle de errores del curso
-      value: false # Si es 'true' se valida el estado de cada video que se detalla en cada capitulo, seccion o subseccion del curso.
+      value: true # Si es 'true' se valida el estado de cada video que se detalla en cada capitulo, seccion o subseccion del curso.
   
   - pdf_error:
       name: pdf con error # Nombre a mostrar en la tabla y detalle de errores del curso
@@ -38,9 +38,9 @@ services:
 
 couchDB_setup:
   value: true  # Si es 'true' se guarda la informacion en la base de datos NoSQL couchDB.
-  username: openCampus # usuario registrado en couchDB
-  password: openCampus # Contraseña del usuario registrado en couchDB
+  username: # usuario registrado en couchDB
+  password: # Contraseña del usuario registrado en couchDB
   domain: 127.0.0.1 # dirección IP del localhost
   port: 5984 # Puerto que escucha por defecto couchDB
-  database_name: course-report # Nombre de la base de datos
+  database_name: # Nombre de la base de datos
   
