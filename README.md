@@ -18,12 +18,12 @@ Actualmente el proyecto ofrece los siguientes servicios:
 * Exporte el curso de edX
 * Descomprima el archivo .tar.gz (le debe generar una carpeta con el nombre ```course```)
 * Clone el repositoio (```Edx-Course-Report```) en el mismo directorio donde se encuentra el curso descomprimido de edX.   
-
+		 
 		 git clone https://github.com/CarlosCastillo10/Edx-Course-Report.git
 * Ubiquese en el repositorio clonado.
-
+		
 		cd Edx-Course-Report
 * Ejecute el script principal .
-
+		
 		python checkit.py
 * El script le generá una carpeta dentro del curso (directorio ```course```) llamada ```course-report``` y dentro de la carpeta encontrará el archivo ``index.html`` donde se encuentra detallado el reporte del curso.
