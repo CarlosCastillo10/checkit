@@ -5,6 +5,7 @@
   # * Verificar la existencia y validez de todas las urls que se encuentren en el curso
   # * Verificar los enlaces a videos externos que no se encuentren con errores. 
   # * Analizar que los archivos en formato pdf se encuentren disponibles.
+  # * Almacenar reporte en base de datos NoSQL apache couchDB.
 # Nota: Para esto debe mantener los el valor 'true' en la variable 'value'. O si desea que alguna de estas opciones se descarte debe cambiar el valor por 'false'.
 # Nota: El proceso de análisis de 'url_error' y 'video_error' puede requerir un tiempo prudencial, dependiendo de su velocidad de conexion a internet y el numero de recursos a validar.
 
