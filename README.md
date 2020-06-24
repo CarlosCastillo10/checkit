@@ -6,7 +6,7 @@ Actualmente el proyecto ofrece los siguientes servicios:
 * Validar todos los videos que se encuentran incorporados en el curso.
 * Validar que se puedan visualizar los archivos en formato pdf que se encuentren incorporados en el curso.
 * Validar si existen secciones sin contenido agregado.
-* Visualización del estado en el que se encuentra el curso edX analizado, a través de una página web offline (```index.html``).
+* Visualización del estado en el que se encuentra el curso edX analizado, a través de una página web offline (```index.html```).
 * Almacenamiento del estado en el que se encuentra el curso edX analizado, en la  base de datos NoSQL apache couchDB.
 * Archivo configurable (```config.yml```) para la activación o desactivación de servicios requeridos.
 
