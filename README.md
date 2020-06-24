@@ -25,5 +25,4 @@ Actualmente el proyecto ofrece los siguientes servicios:
 * Ejecute el script principal .
 
 		python checkit.py
-	
 * El script le generá una carpeta dentro del curso llamada ```course-report``` y dentro de la carpeta encontrará el archivo ``index.html`` donde se encuentra detallado el reporte del curso.
