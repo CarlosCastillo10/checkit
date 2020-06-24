@@ -17,7 +17,7 @@ Actualmente el proyecto ofrece los siguientes servicios:
 ## Ejecución
 * Exporte el curso de edX
 * Descomprima el archivo .tar.gz (le debe generar una carpeta con el nombre ```course```)
-* Clone el repositoio en el mismo directorio donde se encuentra el curso descomprimido de edX.   
+* Clone el repositoio (```Edx-Course-Report```) en el mismo directorio donde se encuentra el curso descomprimido de edX.   
 
 		 git clone https://github.com/CarlosCastillo10/Edx-Course-Report.git
 * Ubiquese en el repositorio clonado.
