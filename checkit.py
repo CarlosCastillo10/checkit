@@ -49,6 +49,7 @@ class Doc:
         if 'display_name' in rootName.attrib:
             self.course_title = (rootName.attrib['display_name']).upper()
             self.courseReport['courseName'] = (rootName.attrib['display_name']) # Nuevo
+    
     def setConfigCourse(self):
         """
         Establece los criterios que se van a evualuar que se encuentran detallados en 
@@ -517,10 +518,8 @@ class Doc:
             sorted_struct = sorted(self.draft_problems_struct[k], key = lambda x: x[0])
             self.draft_problems_struct[k] = [s[1:] for s in sorted_struct]
 
-    def __init__(self, start_path):
+    def __init__(self):
        
-        if not os.path.isdir(start_path):
-            sys.exit("\033[91m ERROR: can't find directory {} \033[0m".format(start_path))
 
         ## variables  numericas
         self.num_subHeading = 0
@@ -595,10 +594,12 @@ class Doc:
         self.describeChapter()
         self.setTotalErrors()
         self.formMainCard(file_index)
+        file_index.close()
+        
         currentDate = datetime.now()
         self.courseReport['reportDate'] = str(currentDate.date())
-        self.courseReport['reportTime'] = str('%d:%d:%d'%(currentDate.hour, currentDate.minute,
-            currentDate.second))
+        self.courseReport['reportTime'] = '%s:%s:%s'%(str(currentDate.hour), str(currentDate.minute),
+            str(currentDate.second))
         self.courseReport['status']['requiredChapters'] = self.requiredChatpers_list
         self.courseReport['status']['detailChapters'] = self.detailChapters
         
@@ -608,8 +609,6 @@ class Doc:
                 self.couchDB_setup, str(self.path)+'/course-report')
         else:
             print('\033[93m\nLa opción de guardar en couchDB se encuentra deshabilitada\n')
-    
-        file_index.close()
 
     def describeChapter(self):
         """
@@ -975,10 +974,14 @@ class Doc:
         return prob_list
 
 if __name__ == "__main__":
+    print("Analizando...\n")
+    writeDoc = Doc()
+    writeDoc.describeCourse()
+    print('\033[0;0m\nOK')
+    '''
     if len(sys.argv) != 2:
         pass
     else:
         folder_name = sys.argv[1]
-        os.getcwd()
-    writeDoc = Doc(os.getcwd())
-    writeDoc.describeCourse()
+    '''
+    

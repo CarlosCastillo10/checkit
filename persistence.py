@@ -29,12 +29,14 @@ class Persistence:
             
             db = couch_server[self.couchDB_setup['database_name']]
             db.save(self.course_report)
-            file_index = open(file_adress+'/index.html', 'r').readlines()
+            
+            # Convertir a bytes el contenido del archivo
+            file_index = bytes(open('index.html').read(), 'utf-8')
             
             # Guardar archivo en couchDB
             db.put_attachment(self.course_report, file_index, filename="index.html")
             
-            print('\033[92m\nGuardado con exito en couchDB\n')
+            print('\033[92m\nGuardado con exito en couchDB')
         
         # Si se esta ejecutando couchDB o en el puerto
         except ConnectionRefusedError:
