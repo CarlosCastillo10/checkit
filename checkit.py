@@ -604,7 +604,8 @@ class Doc:
         
         # Invocar al modulo 'persitence'
         if self.couchDB_setup:
-            persistence.Persistence(self.courseReport, self.couchDB_setup)
+            persistence.Persistence(self.courseReport, 
+                self.couchDB_setup, str(self.path)+'/course-report')
         else:
             print('\033[93m\nLa opción de guardar en couchDB se encuentra deshabilitada\n')
     

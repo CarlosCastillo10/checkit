@@ -12,25 +12,31 @@ except:
 
 class Persistence:
 
-    def __init__(self, course_report, couchDB_setup):
+    def __init__(self, course_report, couchDB_setup, file_adress):
 
         self.course_report = course_report
         self.couchDB_setup = couchDB_setup
-        self.saveReportDB()
+        self.saveReportDB(file_adress)
 
-    def saveReportDB(self):
+    def saveReportDB(self, file_adress):
         """
         Guarda en la base en datos en el reporte total del curso
         """
         try:
+            print(file_adress)
             couch_server = couchdb.Server('http://%s:%s@%s:%s'%(self.couchDB_setup['username'], 
                 self.couchDB_setup['password'], self.couchDB_setup['domain'], self.couchDB_setup['port']))
             
             db = couch_server[self.couchDB_setup['database_name']]
             db.save(self.course_report)
+            file_index = open(file_adress+'/index.html', 'r').readlines()
+            
+            # Guardar archivo en couchDB
+            db.put_attachment(self.course_report, file_index, filename="index.html")
+            
             print('\033[92m\nGuardado con exito en couchDB\n')
         
-        # Si existen fallos en el inicio de couchDB o en el puerto
+        # Si se esta ejecutando couchDB o en el puerto
         except ConnectionRefusedError:
             print('\033[91m\nError de conexión (Compruebe que haya iniciado couchDB, o que '
                 'el valor del atributo <port> sea el correcto)\n')
