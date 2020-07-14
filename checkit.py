@@ -16,7 +16,6 @@ import html
 import yaml
 import persistence
 
-
 class Doc:
     
     def __makeCourse(self):
@@ -238,7 +237,6 @@ class Doc:
             file_index.write('</div>\n</div>\n</div>\n</div>\n')    
         file_index.write('</div>\n</div>\n</div>\n')
     
-
     def formDetailSections(self, file_index, section_list):
         """ 
         Por cada seccion que contiene cada capítulo genera que contiene un componente card propio de bootstrap.     
@@ -520,7 +518,6 @@ class Doc:
 
     def __init__(self):
        
-
         ## variables  numericas
         self.num_subHeading = 0
         self.num_subSectionHeading = 0
@@ -550,16 +547,12 @@ class Doc:
         self.aux_chapter_path = 'chapter'
         self.aux_seq_path = 'sequential'
         self.aux_vert_path ='vertical'
-
         self.aux_draft_path = 'drafts'
         self.aux_draft_vert_path = 'vertical'
 
         self.chapter_list = [] # lista de capitulos
-
         self.criteria_list = [] # lista de criterios
-
         self.variable_list = [] # lista de variables a analizar
-
         self.requiredChatpers_list = []
 
         ## Estructura de secciones y unidades
@@ -575,7 +568,6 @@ class Doc:
 
         self.courseReport = {'courseID': '','courseName':'','reportDate': '',
             'reportTime':'','status':{}}
-       
         
         self.__makeCourse()
         
@@ -650,7 +642,6 @@ class Doc:
 
         self.public_problems_struct = dict((k, v) for k, v in self.public_problems_struct.items() if v)
 
-
     def describeSequen(self, seq):
         """
         Obtener la lista de secciones que contiene cada capítulo
@@ -696,7 +687,6 @@ class Doc:
                     if unpublished:
                         print('\033[93m Warning: There are unpublished changes in published problems under subsection {}. '
                             'Only looking at published version.\033[0m'.format(sequ_name))
-
             else: 
                 if s not in self.draft_problems_struct.keys():
                     all_dict = OrderedDict()
@@ -845,7 +835,6 @@ class Doc:
                     
                 pro_list.append((str(pFile), pro[0]))
                 
-            
             elif (pro[0] == 'video') and ('video_error' in self.variable_list):
                 pro_name = pro[1]+'.xml'
                 pFile = self.path / pro[0] / pro_name
@@ -910,8 +899,7 @@ class Doc:
             all_uni['('+u[0][-9:-4]+')(draft)'+u_name] = (str(uFile), prob_list)
         self.seqDetails_dict['subsections'] = tmp_subsectionsList
         return all_uni
-
-    
+   
     def describeDraftProb(self, probs, aux_u_name):
         """
         Obtener la información de cada archivo detallado en la lista de unidades de la seccion
@@ -978,10 +966,3 @@ if __name__ == "__main__":
     writeDoc = Doc()
     writeDoc.describeCourse()
     print('\033[0;0m\nOK')
-    '''
-    if len(sys.argv) != 2:
-        pass
-    else:
-        folder_name = sys.argv[1]
-    '''
-    
