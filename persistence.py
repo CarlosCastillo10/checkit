@@ -23,7 +23,7 @@ class Persistence:
         Guarda en la base en datos en el reporte total del curso
         """
         try:
-            print(file_adress)
+        
             couch_server = couchdb.Server('http://%s:%s@%s:%s'%(self.couchDB_setup['username'], 
                 self.couchDB_setup['password'], self.couchDB_setup['domain'], self.couchDB_setup['port']))
             
