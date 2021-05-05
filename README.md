@@ -27,3 +27,7 @@ Actualmente el proyecto ofrece los siguientes servicios:
 		
 		python checkit.py
 * El script le generá una carpeta dentro del curso (directorio ```course```) llamada ```course-report``` y dentro de la carpeta encontrará el archivo ``index.html`` donde se encuentra detallado el reporte del curso.
+---
+# EJEMPLO DE FUNCIONAMIENTO
+
+Curso: [Conocimiento ancestral](https://carloscastillo10.github.io/report-course-conocimiento-ancestral/)
